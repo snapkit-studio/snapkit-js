@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-//
 import { detectNetworkSpeed, NetworkSpeed } from '@snapkit-studio/core';
+import { useEffect, useState } from 'react';
 
 /**
  * Hook to detect and monitor network speed changes

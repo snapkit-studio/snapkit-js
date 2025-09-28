@@ -1,46 +1,49 @@
-import {
-  DemoLayout,
-  ExampleContainer,
-  type NavGroup,
-} from '@repo/demo-components';
+import { DemoLayout, type NavGroup } from '@repo/demo-components';
 
-import { DPROptimizationExample } from './examples/DPROptimizationExample';
-import { ReactServerComponentExample } from './examples/ReactServerComponentExample';
-import ServerClientImageExample from './examples/ServerClientImageExample';
-import { SnapkitImageExample } from './examples/SnapkitImageExample';
+import { AdvancedTransformsExample } from './examples/AdvancedTransformsExample';
+import { BasicImageExample } from './examples/BasicImageExample';
+import { ImageTransformsExample } from './examples/ImageTransformsExample';
+import { LazyLoadingExample } from './examples/LazyLoadingExample';
+import { PriorityLoadingExample } from './examples/PriorityLoadingExample';
+import { ResponsiveImagesExample } from './examples/ResponsiveImagesExample';
 
 const navigation: NavGroup[] = [
   {
     title: 'Basic Features',
-    items: [{ id: 'basic', title: 'Basic Image Component', href: '#basic' }],
-    defaultOpen: true,
-  },
-  {
-    title: 'Next.js Features',
     items: [
-      {
-        id: 'server-client',
-        title: 'Server/Client Components',
-        href: '#server-client',
-      },
+      { id: 'basic', title: 'Basic Image Usage', href: '#basic' },
+      { id: 'transforms', title: 'Image Transforms', href: '#transforms' },
     ],
     defaultOpen: true,
   },
   {
-    title: 'React Features',
+    title: 'Responsive & Loading',
     items: [
+      { id: 'responsive', title: 'Responsive Images', href: '#responsive' },
+      { id: 'lazy-loading', title: 'Lazy Loading', href: '#lazy-loading' },
       {
-        id: 'react-server-client',
-        title: 'React Server Components',
-        href: '#react-server-client',
+        id: 'priority-loading',
+        title: 'Priority Loading',
+        href: '#priority-loading',
       },
     ],
-    defaultOpen: true,
+    defaultOpen: false,
   },
   {
-    title: 'Performance',
-    items: [{ id: 'dpr', title: 'DPR Optimization', href: '#dpr' }],
-    defaultOpen: true,
+    title: 'Advanced Features',
+    items: [
+      {
+        id: 'event-handlers',
+        title: 'Event Handlers',
+        href: '#event-handlers',
+      },
+      {
+        id: 'advanced-transforms',
+        title: 'Advanced Transforms',
+        href: '#advanced-transforms',
+      },
+    ],
+    defaultOpen: false,
   },
 ];
 
@@ -48,38 +51,33 @@ export default function Home() {
   return (
     <DemoLayout
       title="Snapkit Next.js Demo"
-      description="Explore the features of Snapkit's Next.js image components with server-side rendering and optimizations."
+      description="Explore the features of Snapkit's Next.js image components rendering and optimizations."
       navigation={navigation}
     >
-      {/* Basic Image Component */}
-      <ExampleContainer
-        id="basic"
-        title="Basic Image Component"
-        description="Simple usage of Snapkit Image component with automatic optimizations."
-        code={`<Image
-  src="/landing-page/fox.jpg"
-  alt="Example image"
-  width={300}
-  height={200}
-  className="rounded-lg shadow-md"
-/>`}
-      >
-        <SnapkitImageExample />
-      </ExampleContainer>
+      <div className="space-y-16">
+        <section id="basic">
+          <BasicImageExample />
+        </section>
 
-      {/* Next.js Server/Client Component Demo */}
-      <div id="server-client" className="scroll-mt-20">
-        <ServerClientImageExample />
-      </div>
+        <section id="transforms">
+          <ImageTransformsExample />
+        </section>
 
-      {/* React Package Server/Client Component Demo */}
-      <div id="react-server-client" className="scroll-mt-20">
-        <ReactServerComponentExample />
-      </div>
+        <section id="responsive">
+          <ResponsiveImagesExample />
+        </section>
 
-      {/* DPR Optimization Demo */}
-      <div id="dpr" className="scroll-mt-20">
-        <DPROptimizationExample />
+        <section id="lazy-loading">
+          <LazyLoadingExample />
+        </section>
+
+        <section id="priority-loading">
+          <PriorityLoadingExample />
+        </section>
+
+        <section id="advanced-transforms">
+          <AdvancedTransformsExample />
+        </section>
       </div>
     </DemoLayout>
   );

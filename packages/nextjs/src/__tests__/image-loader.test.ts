@@ -1,14 +1,6 @@
-import { SnapkitUrlBuilder } from '@snapkit-studio/core';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { createSnapkitLoader, snapkitLoader } from '../image-loader';
-
-// Local type definition for image loader parameters (Next.js ImageLoader params)
-interface ImageLoaderParams {
-  src: string;
-  width: number;
-  quality?: number;
-}
 
 // Mock utils/env-config module
 vi.mock('../utils/env-config', () => ({

@@ -8,15 +8,14 @@ Next.js image loader and React component for Snapkit image optimization service.
 
 ## Features
 
-- 🖼️ **Next.js Image Integration**: Seamless integration with Next.js Image component
-- ⚡ **Automatic Optimization**: Dynamic image transformation with DPR-based srcset
-- 🎯 **Flexible Configuration**: Global and per-component configuration options
-- 📱 **Format Auto-Selection**: Intelligent format selection (WebP, AVIF, etc.)
-- 🚀 **Server Components Support**: Automatic server/client component selection
-- 🔧 **TypeScript Support**: Full TypeScript definitions included
-- 🧪 **Well Tested**: 90%+ test coverage with comprehensive edge case handling
-- 🛡️ **Memory Leak Prevention**: Advanced cleanup logic for IntersectionObserver and resources
-- 📦 **Picture Element Support**: Server-side rendering with optimized srcSet generation
+- **Next.js Image Integration**: Seamless integration with Next.js Image component
+- **Automatic Optimization**: Dynamic image transformation with DPR-based srcset
+- **Client Component**: 현재 `Image` 컴포넌트는 클라이언트 전용이며 `'use client'` 지시자가 필요합니다.
+- **Flexible Configuration**: Global and per-component configuration options
+- **Format Auto-Selection**: Intelligent format selection (WebP, AVIF, etc.)
+- **Client-First Enhancements**: Built-in network adaptation and event handler support
+- **TypeScript Support**: Full TypeScript definitions included
+- **Well Tested**: 90%+ test coverage with comprehensive edge case handling
 
 ## Installation
 
@@ -42,7 +41,9 @@ NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (default
 ### 2. Use with Next.js Image Component
 
 ```typescript
-// app/components/MyComponent.tsx
+'use client';
+
+// app/components/Hero.tsx
 import { Image } from '@snapkit-studio/nextjs';
 
 export function Hero() {
@@ -54,7 +55,7 @@ export function Hero() {
       alt="Hero image"
       transforms={{
         format: 'auto',
-        quality: 85
+        quality: 85,
       }}
     />
   );
@@ -85,15 +86,26 @@ NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (auto|av
   - `off`: Disable format optimization
 
 ```typescript
-// Use anywhere in your app - no setup required
+'use client';
+
 import { Image } from '@snapkit-studio/nextjs';
 
+// Optimized image (zero config beyond env vars)
 <Image src="/photo.jpg" width={800} height={600} alt="Photo" />
+
+// Interactive image with event handlers
+<Image
+  src="/interactive.jpg"
+  width={800}
+  height={600}
+  alt="Interactive"
+  onLoad={() => console.log('loaded')}
+/>
 ```
 
 ### Pattern 2: Direct Props (Advanced)
 
-Use when you need different optimization settings for specific image components.
+Use when you need different optimization settings per image instance.
 
 ```typescript
 import { Image } from '@snapkit-studio/nextjs';
@@ -106,7 +118,7 @@ import { Image } from '@snapkit-studio/nextjs';
   organizationName="custom-org"
   transforms={{
     format: 'avif',
-    quality: 90
+    quality: 90,
   }}
 />
 ```
@@ -153,78 +165,61 @@ interface ImageTransforms {
 }
 ```
 
-## Server Components Support
+## Component Architecture
 
-The Next.js package now includes automatic server/client component selection for optimal performance:
+`@snapkit-studio/nextjs`는 단일 `Image` 컴포넌트를 제공합니다.
 
-### Automatic Component Selection
+- 현재 버전은 클라이언트 전용이며, 사용 시 반드시 파일 상단에 `'use client'` 지시자를 추가해야 합니다.
+- 서버 컴포넌트(React Server Components) 지원은 준비 중이며, 로드맵에 포함되어 있습니다.
+- 클라이언트 측에서 네트워크 기반 품질 조정, 이벤트 핸들러 등 고급 기능을 제공합니다.
+
+### Examples
 
 ```typescript
+'use client';
+
 import { Image } from '@snapkit-studio/nextjs';
 
-// Automatically renders as a server component (no client JS)
-<Image
-  src="/hero.jpg"
-  width={1200}
-  height={600}
-  alt="Hero image"
-/>
-
-// Automatically switches to client component (has onLoad handler)
-<Image
-  src="/interactive.jpg"
-  width={800}
-  height={400}
-  alt="Interactive image"
-  onLoad={() => console.log('Loaded!')}
-/>
-```
-
-### Component Selection Logic
-
-| Props                    | Renders As    | Reason                                            |
-| ------------------------ | ------------- | ------------------------------------------------- |
-| Basic props only         | `ServerImage` | Default, best performance with server-side srcSet |
-| `onLoad`, `onError`      | `ClientImage` | Event handlers need browser                       |
-| `adjustQualityByNetwork` | `ClientImage` | Network detection needs browser                   |
-| `dprOptions`             | `ClientImage` | Custom DPR detection needs browser                |
-| `optimize="server"`      | `ServerImage` | Explicitly forced server rendering                |
-| `optimize="client"`      | `ClientImage` | Explicitly forced client rendering                |
-
-### Explicit Control
-
-```typescript
-// Force server rendering
-<Image
-  src="/static.jpg"
-  optimize="server"
-  alt="Always server rendered"
-/>
-
-// Force client rendering
-<Image
-  src="/dynamic.jpg"
-  optimize="client"
-  alt="Always client rendered"
-/>
-```
-
-### Advanced Usage
-
-For cases where you need direct access to specific components:
-
-```typescript
-import { ServerImage, ClientImage } from '@snapkit-studio/nextjs';
-
-// Use ServerImage directly (no 'use client' needed)
-export default function ServerComponent() {
-  return <ServerImage src="/image.jpg" width={800} height={600} alt="Server" />;
+export function HeroBanner() {
+  return (
+    <section>
+      <Image
+        src="/hero-banner.jpg"
+        width={1920}
+        height={1080}
+        alt="Hero banner"
+        priority
+      />
+    </section>
+  );
 }
+```
 
-// Use ClientImage in client components
+```typescript
 'use client';
-export default function ClientComponent() {
-  return <ClientImage src="/image.jpg" width={800} height={600} alt="Client" />;
+
+import { Image } from '@snapkit-studio/nextjs';
+import { useState } from 'react';
+
+export function Gallery() {
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+  const handleImageLoad = (src: string) => {
+    setLoadedImages(prev => new Set([...prev, src]));
+  };
+
+  return (
+    <div className="gallery">
+      <Image
+        src="/gallery-image.jpg"
+        width={800}
+        height={600}
+        alt="Gallery image"
+        onLoad={() => handleImageLoad('gallery-image.jpg')}
+        onError={() => console.log('Failed to load image')}
+      />
+    </div>
+  );
 }
 ```
 
@@ -308,11 +303,11 @@ Experience all features in action with our interactive demo:
 
 Explore features including:
 
-- Server/Client component automatic selection
-- DPR optimization with srcSet generation
-- Image transformations with live preview
-- Picture element server-side rendering
-- All optimization features and configurations
+- Multiple patterns built with the single `Image` component
+- DPR-aware optimization and automatic `srcSet`
+- Live preview of image transformations
+- Server-rendered picture element output
+- Full tour of Snapkit’s optimization pipeline
 
 ## Migration Guide
 
@@ -320,6 +315,8 @@ Explore features including:
 
 ```typescript
 // Before: Next.js built-in
+import Image from 'next/image';
+
 <Image
   src="/image.jpg"
   width={800}
@@ -327,7 +324,7 @@ Explore features including:
   alt="Image"
 />
 
-// After: Snapkit optimization
+// After: Snapkit optimization with Snapkit Image
 import { Image } from '@snapkit-studio/nextjs';
 
 <Image
@@ -343,13 +340,17 @@ import { Image } from '@snapkit-studio/nextjs';
 
 ```typescript
 // Before: Cloudinary
+import Image from 'next/image';
+
 <Image
   src="https://res.cloudinary.com/demo/image/upload/w_800,q_85/sample.jpg"
   width={800}
   height={600}
 />
 
-// After: Snapkit
+// After: Snapkit with Snapkit Image
+import { Image } from '@snapkit-studio/nextjs';
+
 <Image
   src="/sample.jpg"
   width={800}
@@ -379,16 +380,6 @@ Default image loader using global configuration.
 Create a custom image loader with specific configuration.
 
 **Returns:** Image loader function
-
-### Components
-
-#### `<Image />`
-
-React component wrapper around Next.js Image with Snapkit optimization.
-
-**Props:** All Next.js Image props plus:
-
-- `transforms?: ImageTransforms` - Image transformations to apply
 
 ## Testing
 

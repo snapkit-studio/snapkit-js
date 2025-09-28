@@ -1,12 +1,11 @@
 name: CI
 
 on:
-  push:
   pull_request:
 
 jobs:
   test:
-    name: Lint, Type Check, Test
+    name: Lint, Type Check, Test, Build
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -31,8 +30,20 @@ jobs:
       - name: Run type check
         run: pnpm exec turbo check-types
 
+      - name: Build packages
+        run: pnpm exec turbo build
+
+      - name: Install Playwright
+        run: npx playwright install chromium --with-deps
+
       - name: Run tests
         run: pnpm exec turbo test
 
-      - name: Build package
-        run: pnpm exec turbo build
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: |
+            playwright-report/
+            test-results/

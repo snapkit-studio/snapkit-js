@@ -211,11 +211,30 @@ export function detectEnvironment(): EnvironmentStrategy {
 }
 
 /**
+ * Get framework-specific environment variable name
+ */
+function getFrameworkEnvVarName(baseName: string, strategy?: EnvironmentStrategy): string {
+  const currentStrategy = strategy || detectEnvironment();
+
+  switch (currentStrategy.name) {
+    case 'vite':
+      return `VITE_${baseName}`;
+    case 'cra':
+      return `REACT_APP_${baseName}`;
+    case 'nextjs':
+      return `NEXT_PUBLIC_${baseName}`;
+    default:
+      return baseName;
+  }
+}
+
+/**
  * Validate environment configuration
  */
 export function validateEnvConfig(
   envConfig: SnapkitEnvConfig = getEnvConfig(),
   strict: boolean = false,
+  strategy?: EnvironmentStrategy,
 ): {
   isValid: boolean;
   errors: string[];
@@ -224,10 +243,11 @@ export function validateEnvConfig(
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  // Organization name validation
+  // Organization name validation with framework-specific message
   if (!envConfig.SNAPKIT_ORGANIZATION_NAME) {
-    const message =
-      'SNAPKIT_ORGANIZATION_NAME is not set. Image optimization may not work correctly.';
+    const envVarName = getFrameworkEnvVarName('SNAPKIT_ORGANIZATION_NAME', strategy);
+    const message = `${envVarName} is not set. Image optimization requires this environment variable.`;
+
     if (strict) {
       errors.push(message);
     } else {
@@ -235,20 +255,22 @@ export function validateEnvConfig(
     }
   }
 
-  // Quality validation
+  // Quality validation with framework-specific message
   if (envConfig.SNAPKIT_DEFAULT_QUALITY !== undefined) {
     const quality = envConfig.SNAPKIT_DEFAULT_QUALITY;
     if (isNaN(quality) || quality < 1 || quality > 100) {
-      errors.push('SNAPKIT_DEFAULT_QUALITY must be a number between 1 and 100');
+      const envVarName = getFrameworkEnvVarName('SNAPKIT_DEFAULT_QUALITY', strategy);
+      errors.push(`${envVarName} must be a number between 1 and 100`);
     }
   }
 
-  // Format validation
+  // Format validation with framework-specific message
   if (envConfig.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT) {
     const validFormats = ['avif', 'webp', 'auto', 'off'];
     if (!validFormats.includes(envConfig.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT)) {
+      const envVarName = getFrameworkEnvVarName('SNAPKIT_DEFAULT_OPTIMIZE_FORMAT', strategy);
       errors.push(
-        `SNAPKIT_DEFAULT_OPTIMIZE_FORMAT must be one of: ${validFormats.join(', ')}`,
+        `${envVarName} must be one of: ${validFormats.join(', ')}`,
       );
     }
   }
@@ -273,14 +295,14 @@ export function mergeConfigWithEnv(
 
   // Validate environment config if strict mode is enabled
   if (strict) {
-    const { isValid, errors, warnings } = validateEnvConfig(envConfig, strict);
+    const { isValid, errors, warnings } = validateEnvConfig(envConfig, strict, strategy);
 
     if (warnings.length > 0) {
-      console.warn(`Environment warnings: ${warnings.join(', ')}`);
+      console.warn(`Environment warnings:\n  ${warnings.join('\n  ')}`);
     }
 
     if (!isValid) {
-      throw new Error(`Invalid environment variables: ${errors.join(', ')}`);
+      throw new Error(`Invalid environment variables:\n  ${errors.join('\n  ')}`);
     }
   }
 
@@ -288,8 +310,9 @@ export function mergeConfigWithEnv(
     propsConfig.organizationName ?? envConfig.SNAPKIT_ORGANIZATION_NAME;
 
   if (typeof organizationName === 'undefined') {
+    const envVarName = getFrameworkEnvVarName('SNAPKIT_ORGANIZATION_NAME', strategy);
     throw new Error(
-      'SNAPKIT_ORGANIZATION_NAME is not set. Image optimization may not work correctly.',
+      `${envVarName} is not set. Image optimization requires this environment variable.`,
     );
   }
 

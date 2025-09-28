@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ClientImage } from '../ClientImage';
+import { Image } from '../Image';
 
 // Mock hooks
 vi.mock('../../hooks', () => ({
@@ -40,7 +40,7 @@ vi.mock('../../utils', () => ({
   getImageUrl: vi.fn((src: string) => `${src}?optimized`),
 }));
 
-describe('ClientImage', () => {
+describe('Image', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -52,7 +52,7 @@ describe('ClientImage', () => {
   describe('Basic rendering', () => {
     it('should render img element with required props', () => {
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -68,7 +68,7 @@ describe('ClientImage', () => {
 
     it('should apply custom className', () => {
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -84,7 +84,7 @@ describe('ClientImage', () => {
 
   describe('Fill mode', () => {
     it('should not require width/height when fill is true', () => {
-      render(<ClientImage src="/test.jpg" alt="Test image" fill={true} />);
+      render(<Image src="/test.jpg" alt="Test image" fill={true} />);
 
       const img = screen.getByAltText('Test image');
       expect(img).not.toHaveAttribute('width');
@@ -96,7 +96,7 @@ describe('ClientImage', () => {
     it('should call onLoad when image loads', () => {
       const onLoad = vi.fn();
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -114,7 +114,7 @@ describe('ClientImage', () => {
     it('should call onError when image fails to load', () => {
       const onError = vi.fn();
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -133,7 +133,7 @@ describe('ClientImage', () => {
   describe('Loading states', () => {
     it('should set loading="lazy" by default', () => {
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -149,7 +149,7 @@ describe('ClientImage', () => {
   describe('Sizes attribute', () => {
     it('should use sizes attribute when provided', () => {
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -172,7 +172,7 @@ describe('ClientImage', () => {
       };
 
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -189,7 +189,7 @@ describe('ClientImage', () => {
   describe('Placeholder handling', () => {
     it('should handle blur data URL', () => {
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={800}
@@ -205,7 +205,7 @@ describe('ClientImage', () => {
 
   describe('Accessibility', () => {
     it('should always have alt text', () => {
-      render(<ClientImage src="/test.jpg" alt="" width={800} height={600} />);
+      render(<Image src="/test.jpg" alt="" width={800} height={600} />);
 
       const img = screen.getByRole('img');
       expect(img).toHaveAttribute('alt', '');
@@ -213,7 +213,7 @@ describe('ClientImage', () => {
 
     it('should support decorative images', () => {
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt=""
           width={800}
@@ -229,7 +229,7 @@ describe('ClientImage', () => {
 
   describe('Error handling', () => {
     it('should handle missing src gracefully', () => {
-      render(<ClientImage src="" alt="Test image" width={800} height={600} />);
+      render(<Image src="" alt="Test image" width={800} height={600} />);
 
       const img = screen.getByAltText('Test image');
       expect(img).toBeInTheDocument();
@@ -237,7 +237,7 @@ describe('ClientImage', () => {
 
     it('should handle invalid dimensions', () => {
       render(
-        <ClientImage
+        <Image
           src="/test.jpg"
           alt="Test image"
           width={-100}

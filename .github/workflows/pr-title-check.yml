@@ -28,6 +28,11 @@ jobs:
             ci
             build
             revert
+            feat!
+            fix!
+            refactor!
+            ci!
+            build!
 
           # Require a scope for certain types
           requireScope: false
@@ -37,12 +42,6 @@ jobs:
             core
             react
             nextjs
-            web
-            figma-plugin
-            api
-            data-access
-            docs
-            deps
 
           # Allow empty scope
           allowEmptyScope: true

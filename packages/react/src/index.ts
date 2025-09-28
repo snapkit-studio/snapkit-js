@@ -1,11 +1,5 @@
-// Main components
+// Main component
 export { Image } from './components/Image';
-export { ClientImage } from './components/ClientImage';
-export { ServerImage } from './components/ServerImage';
-export {
-  ImageErrorBoundary,
-  withImageErrorBoundary,
-} from './components/ImageErrorBoundary';
 
 // Hooks
 export { useImageConfig } from './hooks';
@@ -15,16 +9,17 @@ export type {
   ImageTransforms,
   NextImageProps,
   SnapkitConfig,
-  SnapkitImageProps,
+  SnapkitImageProps
 } from '@snapkit-studio/core';
 
 // Re-export core utilities for demo and advanced usage
 export {
-  getDevicePixelRatio,
-  getOptimalDprValues,
   detectNetworkSpeed,
+  getDevicePixelRatio,
+  getOptimalDprValues
 } from '@snapkit-studio/core';
 
 // Utils for advanced usage
+export { isUrlImageSource, requiresClientFeatures } from './types';
 export { createPreloadHint } from './utils/loadingOptimization';
-export { requiresClientFeatures, isUrlImageSource } from './types';
+
