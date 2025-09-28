@@ -30,9 +30,7 @@
     "prepare-release": "node scripts/prepare-release.js prepare",
     "release": "npm run build && npm run changeset:version && npm run prepare-release && npm run changeset:publish",
     "release-cleanup": "node scripts/prepare-release.js cleanup",
-    "test": "turbo test",
-    "test:coverage": "turbo test:coverage",
-    "type-check": "turbo check-types"
+    "test": "turbo test"
   },
   "config": {
     "commitizen": {
