@@ -2,7 +2,6 @@ import { DemoLayout, type NavGroup } from '@repo/demo-components';
 
 import { AdvancedTransformsExample } from './examples/AdvancedTransformsExample';
 import { BasicImageExample } from './examples/BasicImageExample';
-import { EventHandlersExample } from './examples/EventHandlersExample';
 import { ImageTransformsExample } from './examples/ImageTransformsExample';
 import { LazyLoadingExample } from './examples/LazyLoadingExample';
 import { PriorityLoadingExample } from './examples/PriorityLoadingExample';
@@ -74,10 +73,6 @@ export default function Home() {
 
         <section id="priority-loading">
           <PriorityLoadingExample />
-        </section>
-
-        <section id="event-handlers">
-          <EventHandlersExample />
         </section>
 
         <section id="advanced-transforms">
