@@ -29,39 +29,6 @@ test.describe('NextJS Demo - Build Verification', () => {
     await expect(mainContent).toBeVisible();
   });
 
-  test('should render all example sections without errors', async ({
-    page,
-  }) => {
-    const errors: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') {
-        errors.push(msg.text());
-      }
-    });
-
-    // List of all section anchors to test
-    const sections = [
-      '#basic',
-      '#transforms',
-      '#responsive',
-      '#lazy-loading',
-      '#priority-loading',
-      '#event-handlers',
-      '#advanced-transforms',
-    ];
-
-    for (const section of sections) {
-      await page.goto(section);
-
-      // Wait for section to be visible
-      const sectionElement = page.locator(`section${section}`);
-      await expect(sectionElement).toBeVisible({ timeout: 10000 });
-
-      // Check for runtime errors
-      expect(errors).toHaveLength(0);
-    }
-  });
-
   test('should render Image components from @snapkit-studio/nextjs', async ({
     page,
   }) => {

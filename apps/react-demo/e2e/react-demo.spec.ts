@@ -1,17 +1,17 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('React Demo - Build Verification', () => {
   test('should load Vite production build without errors', async ({ page }) => {
     // Track console errors
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
     });
 
     // Track page crashes
-    page.on('pageerror', error => {
+    page.on('pageerror', (error) => {
       errors.push(error.message);
     });
 
@@ -32,9 +32,11 @@ test.describe('React Demo - Build Verification', () => {
     expect(hasContent).toBe(true);
   });
 
-  test('should render Image components from @snapkit-studio/react', async ({ page }) => {
+  test('should render Image components from @snapkit-studio/react', async ({
+    page,
+  }) => {
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -66,13 +68,13 @@ test.describe('React Demo - Build Verification', () => {
     const errors: string[] = [];
     const networkErrors: string[] = [];
 
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
     });
 
-    page.on('requestfailed', request => {
+    page.on('requestfailed', (request) => {
       networkErrors.push(`${request.failure()?.errorText}: ${request.url()}`);
     });
 
@@ -94,18 +96,23 @@ test.describe('React Demo - Build Verification', () => {
     expect(isInteractive).toBe(true);
   });
 
-  test('should handle Vite production bundle optimization', async ({ page }) => {
+  test('should handle Vite production bundle optimization', async ({
+    page,
+  }) => {
     const errors: string[] = [];
     const jsRequests: string[] = [];
 
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
     });
 
-    page.on('request', request => {
-      if (request.url().endsWith('.js') && !request.url().includes('node_modules')) {
+    page.on('request', (request) => {
+      if (
+        request.url().endsWith('.js') &&
+        !request.url().includes('node_modules')
+      ) {
         jsRequests.push(request.url());
       }
     });
@@ -123,11 +130,13 @@ test.describe('React Demo - Build Verification', () => {
     expect(jsRequests.length).toBeGreaterThan(0); // Should have at least one JS bundle
   });
 
-  test('should verify React components render without runtime errors', async ({ page }) => {
+  test('should verify React components render without runtime errors', async ({
+    page,
+  }) => {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -145,8 +154,8 @@ test.describe('React Demo - Build Verification', () => {
     expect(errors).toHaveLength(0);
 
     // Check for React-specific warnings (but don't fail on them)
-    const reactWarnings = warnings.filter(warning =>
-      warning.includes('React') || warning.includes('Warning:')
+    const reactWarnings = warnings.filter(
+      (warning) => warning.includes('React') || warning.includes('Warning:'),
     );
 
     // Log warnings for debugging but don't fail the test
@@ -163,7 +172,7 @@ test.describe('React Demo - Build Verification', () => {
 
   test('should load and display demo content correctly', async ({ page }) => {
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -175,8 +184,8 @@ test.describe('React Demo - Build Verification', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify main heading or content exists
-    const hasHeading = await page.locator('h1').count() > 0;
-    const hasContent = await page.locator('#root > *').count() > 0;
+    const hasHeading = (await page.locator('h1').count()) > 0;
+    const hasContent = (await page.locator('#root > *').count()) > 0;
 
     expect(hasHeading || hasContent).toBe(true);
 
