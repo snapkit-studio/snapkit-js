@@ -40,7 +40,7 @@ export function AdvancedTransformsExample() {
                   alt={`Quality ${quality}%`}
                   width={200}
                   height={150}
-                  className="w-full rounded border"
+                  className="w-full rounded border object-cover"
                   transforms={{ quality }}
                 />
                 <p className="mt-1 text-xs text-gray-500">
@@ -86,7 +86,7 @@ export function AdvancedTransformsExample() {
                   alt={size.label}
                   width={size.width}
                   height={size.height}
-                  className="w-full rounded border"
+                  className="w-full rounded border object-cover"
                   transforms={{ width: size.width, height: size.height }}
                 />
               </div>
@@ -117,7 +117,7 @@ export function AdvancedTransformsExample() {
                 alt="Vintage effect"
                 width={250}
                 height={188}
-                className="w-full rounded border"
+                className="w-full rounded border object-cover"
                 transforms={{
                   grayscale: true,
                   blur: 1,
@@ -137,7 +137,7 @@ export function AdvancedTransformsExample() {
                 alt="Dramatic effect"
                 width={250}
                 height={188}
-                className="w-full rounded border"
+                className="w-full rounded border object-cover"
                 transforms={{
                   blur: 3,
                   quality: 90,
@@ -156,7 +156,7 @@ export function AdvancedTransformsExample() {
                 alt="Mirror effect"
                 width={250}
                 height={188}
-                className="w-full rounded border"
+                className="w-full rounded border object-cover"
                 transforms={{
                   flip: true,
                   flop: true,
@@ -315,7 +315,7 @@ export function AdvancedTransformsExample() {
                   alt="Real-time transform preview"
                   width={customTransforms.width}
                   height={customTransforms.height}
-                  className="mx-auto rounded border"
+                  className="mx-auto rounded border object-cover"
                   transforms={customTransforms}
                 />
               </div>
@@ -375,7 +375,7 @@ const [transforms, setTransforms] = useState({
                     alt={`${style.name} style`}
                     width={150}
                     height={113}
-                    className="w-full rounded"
+                    className="w-full rounded object-cover"
                     transforms={style.transforms}
                   />
                 </div>

@@ -16,7 +16,7 @@ export function BasicImageExample() {
             alt="Fox image"
             width={400}
             height={300}
-            className="rounded-lg border"
+            className="rounded-lg border object-cover"
           />
         </div>
 
@@ -73,21 +73,21 @@ function BasicExample() {
               alt="Small image"
               width={120}
               height={90}
-              className="rounded border"
+              className="rounded border object-cover"
             />
             <Image
               src="/landing-page/fox.jpg"
               alt="Medium image"
               width={200}
               height={150}
-              className="rounded border"
+              className="rounded border object-cover"
             />
             <Image
               src="/landing-page/fox.jpg"
               alt="Large image"
               width={300}
               height={225}
-              className="rounded border"
+              className="rounded border object-cover"
             />
           </div>
         </div>

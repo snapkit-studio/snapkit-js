@@ -22,7 +22,7 @@ export function PriorityLoadingExample() {
             width={800}
             height={400}
             priority={true}
-            className="w-full rounded-lg border"
+            className="w-full rounded-lg border object-cover"
             sizes="100vw"
           />
           <div className="mt-2 rounded border border-green-200 bg-green-50 p-3 text-sm">
@@ -58,7 +58,7 @@ export function PriorityLoadingExample() {
                 width={400}
                 height={300}
                 loading="eager"
-                className="w-full rounded border"
+                className="w-full rounded border object-cover"
               />
               <p className="mt-2 text-sm text-gray-600">
                 loading=&quot;eager&quot;
@@ -71,7 +71,7 @@ export function PriorityLoadingExample() {
                 width={400}
                 height={300}
                 loading="eager"
-                className="w-full rounded border"
+                className="w-full rounded border object-cover"
               />
               <p className="mt-2 text-sm text-gray-600">
                 loading=&quot;eager&quot;
@@ -106,7 +106,7 @@ export function PriorityLoadingExample() {
                   width={300}
                   height={200}
                   loading="lazy"
-                  className="w-full rounded border"
+                  className="w-full rounded border object-cover"
                 />
                 <p className="mt-1 text-xs text-gray-500">lazy loading</p>
               </div>
@@ -233,7 +233,7 @@ export function PriorityLoadingExample() {
                 height={300}
                 // 실제로는 useMediaQuery 등을 사용
                 priority={true} // example: true only on desktop
-                className="w-full rounded border"
+                className="w-full rounded border object-cover"
               />
             </div>
 
@@ -251,7 +251,7 @@ export function PriorityLoadingExample() {
                     width={300}
                     height={200}
                     priority={index === 0} // only the first is priority
-                    className="w-full rounded border"
+                    className="w-full rounded border object-cover"
                   />
                 ))}
               </div>

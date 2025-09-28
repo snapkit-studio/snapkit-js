@@ -20,7 +20,7 @@ export function ImageTransformsExample() {
                 alt="Original image"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
               />
             </div>
 
@@ -32,7 +32,7 @@ export function ImageTransformsExample() {
                 alt="Grayscale image"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{ grayscale: true }}
               />
             </div>
@@ -45,7 +45,7 @@ export function ImageTransformsExample() {
                 alt="Blurred image"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{ blur: 5 }}
               />
             </div>
@@ -58,7 +58,7 @@ export function ImageTransformsExample() {
                 alt="Horizontally flipped image"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{ flop: true }}
               />
             </div>
@@ -99,7 +99,7 @@ export function ImageTransformsExample() {
                 alt="Original"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
               />
             </div>
 
@@ -110,7 +110,7 @@ export function ImageTransformsExample() {
                 alt="Vertically flipped"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{ flip: true }}
               />
             </div>
@@ -124,7 +124,7 @@ export function ImageTransformsExample() {
                 alt="Both flips"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{ flip: true, flop: true }}
               />
             </div>
@@ -152,7 +152,7 @@ export function ImageTransformsExample() {
                 alt="Grayscale + blur"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{
                   grayscale: true,
                   blur: 3,
@@ -169,7 +169,7 @@ export function ImageTransformsExample() {
                 alt="Composite effect"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{
                   flip: true,
                   flop: true,
@@ -185,7 +185,7 @@ export function ImageTransformsExample() {
                 alt="Full effect"
                 width={200}
                 height={150}
-                className="rounded border"
+                className="rounded border object-cover"
                 transforms={{
                   grayscale: true,
                   blur: 2,

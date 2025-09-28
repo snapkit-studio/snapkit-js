@@ -19,7 +19,7 @@ export function ResponsiveImagesExample() {
             alt="Responsive image"
             width={800}
             height={600}
-            className="w-full max-w-2xl rounded-lg border"
+            className="w-full max-w-2xl rounded-lg border object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
@@ -51,7 +51,7 @@ export function ResponsiveImagesExample() {
               alt="Mobile-first responsive"
               width={600}
               height={400}
-              className="w-full max-w-lg rounded border"
+              className="w-full max-w-lg rounded border object-cover"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           </div>
@@ -66,7 +66,7 @@ export function ResponsiveImagesExample() {
               alt="Fixed + percentage mix"
               width={600}
               height={400}
-              className="w-full max-w-lg rounded border"
+              className="w-full max-w-lg rounded border object-cover"
               sizes="(max-width: 640px) 320px, (max-width: 1024px) 50vw, 400px"
             />
           </div>
@@ -141,7 +141,7 @@ export function ResponsiveImagesExample() {
                 alt="Landscape for desktop"
                 width={800}
                 height={450}
-                className="w-full rounded border"
+                className="w-full rounded border object-cover"
                 sizes="100vw"
                 transforms={{ width: 800, height: 450 }}
               />
@@ -155,7 +155,7 @@ export function ResponsiveImagesExample() {
                 alt="Square for tablet"
                 width={600}
                 height={600}
-                className="mx-auto w-full max-w-md rounded border"
+                className="mx-auto w-full max-w-md rounded border object-cover"
                 sizes="100vw"
                 transforms={{ width: 600, height: 600 }}
               />
@@ -169,14 +169,14 @@ export function ResponsiveImagesExample() {
                 alt="Portrait for mobile"
                 width={300}
                 height={400}
-                className="mx-auto w-full max-w-xs rounded border"
+                className="mx-auto w-full max-w-xs rounded border object-cover"
                 sizes="100vw"
                 transforms={{ width: 300, height: 400 }}
               />
             </div>
 
             {/* Example visible on all screens */}
-            <div className="block">
+            <div className="relative block">
               <p className="mb-2 text-sm font-medium">
                 All screens: responsive aspect ratio
               </p>

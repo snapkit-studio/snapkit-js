@@ -21,7 +21,7 @@ export function LazyLoadingExample() {
               alt="Lazy loaded image 1"
               width={400}
               height={300}
-              className="rounded border"
+              className="rounded border object-cover"
               loading="lazy"
             />
             <Image
@@ -29,7 +29,7 @@ export function LazyLoadingExample() {
               alt="Lazy loaded image 2"
               width={400}
               height={300}
-              className="rounded border"
+              className="rounded border object-cover"
               loading="lazy"
             />
           </div>
@@ -57,7 +57,7 @@ export function LazyLoadingExample() {
             alt="Eager loaded image"
             width={400}
             height={300}
-            className="rounded border"
+            className="rounded border object-cover"
             loading="eager"
           />
         </div>
@@ -85,7 +85,7 @@ export function LazyLoadingExample() {
             alt="Blur placeholder image"
             width={400}
             height={300}
-            className="rounded border"
+            className="rounded border object-cover"
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
             placeholder="blur"
           />
@@ -118,7 +118,7 @@ export function LazyLoadingExample() {
                   alt="Gray placeholder"
                   width={300}
                   height={200}
-                  className="rounded"
+                  className="rounded object-cover"
                 />
               </div>
             </div>
@@ -130,7 +130,7 @@ export function LazyLoadingExample() {
                   alt="Blue placeholder"
                   width={300}
                   height={200}
-                  className="rounded"
+                  className="rounded object-cover"
                 />
               </div>
             </div>
@@ -164,7 +164,7 @@ export function LazyLoadingExample() {
                 alt="Loaded image"
                 width={400}
                 height={300}
-                className="rounded border"
+                className="rounded border object-cover"
               />
             </div>
 
@@ -216,7 +216,7 @@ export function LazyLoadingExample() {
                   alt={`Lazy loaded image ${index + 1}`}
                   width={200}
                   height={150}
-                  className="flex-shrink-0 rounded border"
+                  className="flex-shrink-0 rounded border object-cover"
                   loading="lazy"
                 />
                 <div>
