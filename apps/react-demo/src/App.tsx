@@ -1,19 +1,15 @@
-import { useEffect, useState } from 'react';
-//
 import {
   DemoLayout,
   ExampleContainer,
   type NavGroup,
 } from '@repo/demo-components';
-//
 import {
   detectNetworkSpeed,
   getDevicePixelRatio,
   getOptimalDprValues,
   Image,
 } from '@snapkit-studio/react';
-
-import { ImageErrorBoundaryExample } from './examples/ImageErrorBoundaryExample';
+import { useEffect, useState } from 'react';
 
 const navigation: NavGroup[] = [
   {
@@ -682,11 +678,6 @@ cleanup();
       {/* Advanced Patterns Section */}
       <section className="space-y-8">
         <h2 className="text-3xl font-bold text-gray-900">Advanced Patterns</h2>
-
-        {/* Error Boundary Example */}
-        <div id="error-boundary">
-          <ImageErrorBoundaryExample />
-        </div>
 
         {/* Art Direction Example */}
         <ExampleContainer
