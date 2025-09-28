@@ -1,5 +1,5 @@
-import { ImageLoader } from 'next/image';
 import { SnapkitConfig, SnapkitImageEngine } from '@snapkit-studio/core';
+import { ImageLoader } from 'next/image';
 
 import { parseEnvConfig } from './utils/env-config';
 

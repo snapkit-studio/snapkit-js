@@ -1,61 +1,143 @@
-import { forwardRef } from 'react';
+'use client';
+
 import { SnapkitImageProps } from '@snapkit-studio/core';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 
-import { ClientImage } from './ClientImage';
-import { ServerImage } from './ServerImage';
+import { useImageConfig, useImageLazyLoading, useImagePreload } from '../hooks';
+import {
+  createContainerStyle,
+  createImageStyle,
+  createReservedSpace,
+} from '../utils';
 
-/**
- * Snapkit Image Component with automatic Server/Client selection
- *
- * Automatically selects between ServerImage and ClientImage based on props:
- * - Uses ServerImage by default for better performance (no JavaScript required)
- * - Uses ClientImage when client-side features are needed:
- *   - Event handlers (onLoad, onError)
- *   - Network quality adjustment
- *   - Priority preloading
- *
- * @example
- * ```tsx
- * // Renders as ServerImage (no JavaScript needed)
- * <Image src="/path/to/image.jpg" alt="Description" width={800} height={600} />
- *
- * // Renders as ClientImage (onLoad handler requires browser)
- * <Image
- *   src="/path/to/image.jpg"
- *   alt="Description"
- *   width={800}
- *   height={600}
- *   onLoad={() => console.log('Loaded!')}
- * />
- *
- * // Renders as ClientImage (network adaptation requires browser)
- * <Image
- *   src="/path/to/image.jpg"
- *   alt="Description"
- *   width={800}
- *   height={600}
- *   adjustQualityByNetwork={true}
- * />
- * ```
- */
 export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
-  (props, ref) => {
-    // Determine if client-side features are required
-    const requiresClientFeatures = !!(
-      props.onLoad ||
-      props.onError ||
-      props.adjustQualityByNetwork ||
-      props.priority // Priority preloading requires client-side <link> injection
-    );
+  (
+    {
+      src,
+      alt,
+      width,
+      height,
+      fill = false,
+      sizes,
+      priority = false,
+      loading,
+      transforms = {},
+      dprOptions,
+      adjustQualityByNetwork = true,
+      style,
+      ...props
+    },
+    ref,
+  ) => {
+    // Check if src is a string URL
+    const isUrlImageSource = typeof src === 'string';
 
-    // Select the appropriate component based on requirements
-    if (requiresClientFeatures) {
-      return <ClientImage ref={ref} {...props} />;
+    // Provider-less image optimization hook
+    const { imageUrl, srcSet, imageSize } = useImageConfig({
+      src,
+      width,
+      height,
+      fill,
+      sizes,
+      transforms,
+      dprOptions,
+      adjustQualityByNetwork,
+    });
+
+    // Client-side hydration state to avoid hydration mismatch
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+      setHasMounted(true);
+    }, []);
+
+    // Lazy loading hook
+    const { isVisible, imgRef, shouldLoadEager } = useImageLazyLoading({
+      priority,
+      loading,
+    });
+
+    // Preload hook for priority images
+    useImagePreload({
+      priority,
+      imageUrl,
+      sizes,
+    });
+
+    // Consolidate all style calculations into a single useMemo for better performance
+    const { reservedSpace, imageStyle, containerStyle } = useMemo(() => {
+      const reserved = createReservedSpace(fill, width, height);
+      const imgStyle = createImageStyle(style, fill);
+      const containerStyles = createContainerStyle(fill, reserved);
+
+      return {
+        reservedSpace: reserved,
+        imageStyle: imgStyle,
+        containerStyle: containerStyles,
+      };
+    }, [fill, width, height, style]);
+
+    // Combined ref handling
+    const setRefs = (node: HTMLImageElement | null) => {
+      if (typeof ref === 'function') {
+        ref(node);
+      } else if (ref) {
+        ref.current = node;
+      }
+      // @ts-expect-error - imgRef is managed internally
+      imgRef.current = node;
+    };
+
+    // Return basic image for non-string sources
+    if (!isUrlImageSource) {
+      return (
+        <img
+          ref={ref}
+          src={src as string}
+          alt={alt}
+          width={fill ? undefined : width}
+          height={fill ? undefined : height}
+          style={style}
+          loading={loading || 'lazy'}
+          {...props}
+        />
+      );
     }
 
-    // Default to server component for better performance
-    return <ServerImage ref={ref} {...props} />;
+    // For hydration consistency, always render the same attributes on server and client
+    // On the server and during initial client render, only show for priority/eager images
+    // After hydration, allow lazy loading to work normally
+    const shouldRenderSrcSet =
+      priority || shouldLoadEager || (hasMounted && isVisible);
+
+    // Main image content - Always render img element for IntersectionObserver to work
+    const content = (
+      <img
+        ref={setRefs}
+        src={shouldRenderSrcSet ? imageUrl : undefined}
+        data-src={imageUrl} // Store actual URL for lazy loading
+        srcSet={shouldRenderSrcSet ? srcSet || undefined : undefined}
+        sizes={sizes}
+        alt={alt}
+        width={fill ? undefined : imageSize.width}
+        height={fill ? undefined : imageSize.height}
+        loading={loading || (shouldLoadEager ? 'eager' : 'lazy')}
+        style={imageStyle}
+        // ARIA attributes for better accessibility
+        role="img"
+        aria-busy={!shouldRenderSrcSet ? 'true' : 'false'}
+        aria-label={shouldRenderSrcSet ? alt : `Loading: ${alt}`}
+        {...props}
+      />
+    );
+
+    // Return with appropriate wrapper based on layout mode
+    if (fill || reservedSpace) {
+      return <div style={containerStyle}>{content}</div>;
+    }
+
+    return content;
   },
 );
 
-Image.displayName = 'SnapkitImage';
+Image.displayName = 'Image';

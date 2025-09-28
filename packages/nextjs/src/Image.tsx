@@ -1,41 +1,111 @@
-import dynamic from 'next/dynamic';
+'use client';
 
-import { ServerImage } from './ServerImage';
+import { ImageTransforms, SnapkitUrlBuilder } from '@snapkit-studio/core';
+import NextImage, { ImageLoader } from 'next/image';
+import { useMemo } from 'react';
+
+import { createSnapkitLoader } from './image-loader';
 import type { SnapkitImageProps } from './types';
-import { forceServerRendering, requiresClientFeatures } from './types';
-
-// Dynamically import ClientImage to handle client-server boundary
-const ClientImage = dynamic(() =>
-  import('./ClientImage').then((mod) => mod.ClientImage),
-);
+import { calculateEnhancedStyle } from './utils';
+import { parseEnvConfig } from './utils/env-config';
 
 /**
- * Smart Image component that automatically chooses between
- * server and client rendering based on props
- *
- * @example
- * // Automatically renders as server component (no client features)
- * <Image src="/static.jpg" width={800} height={600} alt="Static" />
- *
- * // Automatically renders as client component (has onLoad handler)
- * <Image src="/interactive.jpg" width={800} height={600} alt="Interactive" onLoad={() => {}} />
- *
- * // Force server rendering
- * <Image src="/forced.jpg" optimize="server" alt="Server" />
+ * Creates a custom loader that applies transforms and network-based quality adjustment
+ * Integrates transform logic with the loader for consistent URL generation
  */
-export function Image(props: SnapkitImageProps) {
-  // Step 1: Check for explicit optimization mode
-  if (forceServerRendering(props)) {
-    return <ServerImage {...props} />;
+function createTransformLoader(
+  transforms: ImageTransforms | undefined,
+): ImageLoader {
+  const envConfig = parseEnvConfig();
+
+  console.log('envConfig', envConfig);
+  const urlBuilder = new SnapkitUrlBuilder(envConfig.organizationName);
+  const baseLoader = createSnapkitLoader();
+
+  return ({ src, width, quality }) => {
+    console.log('src', src);
+    console.log('width', width);
+    console.log('quality', quality);
+
+    // Apply transforms if provided
+    const processedSrc = urlBuilder.buildTransformedUrl(src, transforms || {});
+
+    // Apply optimization with network-based quality adjustment
+    return baseLoader({
+      src: processedSrc,
+      width,
+      quality,
+    });
+  };
+}
+
+/**
+ * Client Component version of Snapkit Image
+ * Supports client-side features like event handlers and network adaptation
+ * Renders with dynamic optimization based on device and network conditions
+ */
+export function Image({
+  src,
+  transforms,
+  style,
+  onLoad,
+  onError,
+  ...props
+}: SnapkitImageProps) {
+  const isUrlImageSource = typeof src === 'string';
+
+  // Memoize loader creation to prevent recreating on every render
+  const loader = createTransformLoader(transforms);
+
+  // Memoize width/height calculations
+  const { numWidth, numHeight } = useMemo(() => {
+    const width = props.width
+      ? typeof props.width === 'number'
+        ? props.width
+        : parseInt(String(props.width), 10)
+      : undefined;
+
+    const height = props.height
+      ? typeof props.height === 'number'
+        ? props.height
+        : parseInt(String(props.height), 10)
+      : undefined;
+
+    return { numWidth: width, numHeight: height };
+  }, [props.width, props.height]);
+
+  // Memoize enhanced style calculation
+  const enhancedStyle = useMemo(
+    () => calculateEnhancedStyle(numWidth, numHeight, style),
+    [numWidth, numHeight, style],
+  );
+
+  console.log('isUrlImageSource', isUrlImageSource);
+  if (!isUrlImageSource) {
+    // For static imports, use Next.js Image without Snapkit optimization
+    return (
+      <NextImage
+        {...props}
+        src={src}
+        style={enhancedStyle}
+        onLoad={onLoad}
+        onError={onError}
+      />
+    );
   }
 
-  // Step 2: Check if props require client-side features
-  if (requiresClientFeatures(props)) {
-    return <ClientImage {...props} />;
-  }
-
-  // Step 3: Default to server component for optimal performance
-  // Server components provide better initial load performance
-  // and smaller bundle sizes
-  return <ServerImage {...props} />;
+  // The loader handles both transforms and optimization
+  // No need to pre-transform the src, loader will handle it
+  return (
+    <NextImage
+      {...props}
+      className={props.className}
+      src={src}
+      loader={loader}
+      style={enhancedStyle}
+      onLoad={onLoad}
+      onError={onError}
+      unoptimized={false}
+    />
+  );
 }

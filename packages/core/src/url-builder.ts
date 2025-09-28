@@ -40,6 +40,7 @@ export class SnapkitUrlBuilder {
     // Add slash if not starting with one
     const path = src.startsWith('/') ? src : `/${src}`;
 
+    console.log('baseUrl', this.baseUrl);
     return `${this.baseUrl}${path}`;
   }
 
