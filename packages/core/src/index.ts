@@ -16,6 +16,17 @@ export type {
 export { SnapkitUrlBuilder } from './url-builder';
 export { UrlBuilderFactory } from './url-builder-factory';
 
+// Security Utilities
+export {
+  isValidUrl,
+  isValidPath,
+  sanitizePath,
+  createSecurityError,
+} from './security-utils';
+
+// Cache Utilities
+export { LRUCache } from './lru-cache';
+
 // Format Detection
 export {
   estimateFormatSupportFromUA,

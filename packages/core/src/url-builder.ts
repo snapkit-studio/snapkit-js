@@ -1,4 +1,5 @@
 import { CdnConfig, ImageTransforms } from './types';
+import { isValidUrl, isValidPath, sanitizePath, createSecurityError } from './security-utils';
 
 /**
  * Generate image URLs with different CDN providers
@@ -13,10 +14,20 @@ export class SnapkitUrlBuilder {
           'organizationName is required when using snapkit provider',
         );
       }
+      // Validate organization name format
+      if (!/^[a-z0-9-]+$/.test(config.organizationName)) {
+        throw new Error(
+          'organizationName must only contain lowercase letters, numbers, and hyphens',
+        );
+      }
       this.baseUrl = `https://${config.organizationName}-cdn.snapkit.studio`;
     } else if (config.provider === 'custom') {
       if (!config.baseUrl) {
         throw new Error('baseUrl is required when using custom provider');
+      }
+      // Validate custom base URL
+      if (!isValidUrl(config.baseUrl)) {
+        throw createSecurityError('custom CDN URL validation', config.baseUrl, 'Invalid or potentially malicious URL');
       }
       this.baseUrl = config.baseUrl;
     } else {
@@ -30,13 +41,27 @@ export class SnapkitUrlBuilder {
   buildImageUrl(src: string): string {
     // Return as-is if already complete URL
     if (src.startsWith('http://') || src.startsWith('https://')) {
+      // Validate URL to prevent malicious URLs
+      if (!isValidUrl(src)) {
+        throw createSecurityError('image URL validation', src, 'Invalid or potentially malicious URL');
+      }
       return src;
     }
 
-    // Add slash if not starting with one
-    const path = src.startsWith('/') ? src : `/${src}`;
+    // Split path and query parameters
+    const [path, query] = src.split('?');
 
-    return `${this.baseUrl}${path}`;
+    // Validate and sanitize path
+    if (!isValidPath(path)) {
+      throw createSecurityError('image path validation', path, 'Invalid or potentially malicious path');
+    }
+
+    // Sanitize and normalize the path
+    const sanitizedPath = sanitizePath(path);
+
+    // Reconstruct URL with query parameters if they exist
+    const fullUrl = `${this.baseUrl}${sanitizedPath}`;
+    return query ? `${fullUrl}?${query}` : fullUrl;
   }
 
   /**
@@ -51,7 +76,8 @@ export class SnapkitUrlBuilder {
       return baseUrl;
     }
 
-    if (src.includes('?')) {
+    // Check if the resulting URL already has query params
+    if (baseUrl.includes('?')) {
       return `${baseUrl}&${params}`;
     }
 
