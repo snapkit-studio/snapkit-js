@@ -73,9 +73,9 @@ export function Hero() {
       width={1200}
       height={600}
       alt="Hero image"
+      quality={85}
       transforms={{
         format: 'auto',
-        quality: 85,
       }}
     />
   );
@@ -295,9 +295,9 @@ export function Gallery({ images }: { images: string[] }) {
   width={600}
   height={800}
   alt="Portrait"
+  quality={85}
   transforms={{
     format: 'webp',
-    quality: 85,
     blur: 2,                    // Slight blur effect
   }}
 />
@@ -353,7 +353,11 @@ Explore features including:
 
 ## Migration Guide
 
-### From Next.js Built-in Optimization
+**📖 [Complete Migration Guide](../../docs/MIGRATION-FROM-NEXTJS.md)** - Comprehensive step-by-step guide with troubleshooting
+
+### Quick Migration Examples
+
+#### From Next.js Built-in Image
 
 ```typescript
 // Before: Next.js built-in
@@ -367,6 +371,7 @@ import Image from 'next/image';
 />
 
 // After: Snapkit optimization with Snapkit Image
+'use client';
 import { Image } from '@snapkit-studio/nextjs';
 
 <Image
@@ -374,11 +379,12 @@ import { Image } from '@snapkit-studio/nextjs';
   width={800}
   height={600}
   alt="Image"
-  transforms={{ format: 'webp', quality: 85 }}
+  quality={85}
+  transforms={{ format: 'auto' }}
 />
 ```
 
-### From Other Image Services
+#### From Other Image Services
 
 ```typescript
 // Before: Cloudinary
@@ -391,13 +397,15 @@ import Image from 'next/image';
 />
 
 // After: Snapkit with Snapkit Image
+'use client';
 import { Image } from '@snapkit-studio/nextjs';
 
 <Image
   src="/sample.jpg"
   width={800}
   height={600}
-  transforms={{ width: 800, quality: 85 }}
+  quality={85}
+  transforms={{ format: 'auto' }}
 />
 ```
 

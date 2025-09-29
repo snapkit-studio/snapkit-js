@@ -9,21 +9,6 @@ Next-generation image optimization for React and Next.js applications.
 
 Drop-in image optimization with automatic format conversion (AVIF/WebP), lazy loading, and responsive images. Supports **flexible CDN configuration** - use Snapkit CDN for zero-config optimization or integrate with your existing CDN infrastructure (CloudFront, Google Cloud Storage, Cloudflare, etc.).
 
-### 🚧 React Server Components (RSC) Status
-
-#### Next.js Package
-
-- The `@snapkit-studio/nextjs` `Image` component is currently **client-only**.
-- RSC 및 서버 컴포넌트 환경에서는 직접 사용할 수 없으며, `'use client'` 지시자가 필요합니다.
-- 향후 RSC 지원을 준비하면서도 기존 Next.js Image 통합 흐름은 유지됩니다.
-
-#### React Package
-
-- **Framework-agnostic RSC support** - works in any React 18+ environment
-- **ServerImage and ClientImage components** for explicit control
-- **Smaller bundle size** without Next.js dependencies
-- **Consistent explicit component selection** approach
-
 ## Packages
 
 | Package                                       | Size  | Description                                     |
@@ -193,6 +178,12 @@ IMAGE_CDN_URL=https://images.example.com
 | `IMAGE_CDN_PROVIDER`     | All setups   | CDN provider: `snapkit` or `custom` |
 | `SNAPKIT_ORGANIZATION`   | Snapkit CDN  | Your Snapkit organization name      |
 | `IMAGE_CDN_URL`          | Custom CDN   | Your custom CDN base URL            |
+
+## Migration Guide
+
+Migrating from existing image solutions? Check out our comprehensive migration guides:
+
+- **[From Next.js Image →](./docs/MIGRATION-FROM-NEXTJS.md)** Complete step-by-step guide with code examples and troubleshooting
 
 ## Live Demos
 
