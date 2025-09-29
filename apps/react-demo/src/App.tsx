@@ -1,3 +1,5 @@
+import './global.css';
+
 import {
   DemoLayout,
   ExampleContainer,
@@ -15,18 +17,18 @@ import { CdnConfigurationExample } from './components/CdnConfigurationExample';
 
 const navigation: NavGroup[] = [
   {
-    title: 'Configuration',
-    items: [
-      { id: 'cdn-config', title: 'CDN Configuration', href: '#cdn-config' },
-    ],
-    defaultOpen: true,
-  },
-  {
     title: 'Basic Features',
     items: [
       { id: 'dpr-srcset', title: 'DPR-based Srcset', href: '#dpr-srcset' },
       { id: 'fill-mode', title: 'Fill Mode', href: '#fill-mode' },
       { id: 'transforms', title: 'Image Transforms', href: '#transforms' },
+    ],
+    defaultOpen: true,
+  },
+  {
+    title: 'Configuration',
+    items: [
+      { id: 'cdn-config', title: 'CDN Configuration', href: '#cdn-config' },
     ],
     defaultOpen: true,
   },
@@ -321,7 +323,7 @@ function PriorityLoadingDemo() {
               width={400}
               height={267}
               priority={true}
-              className="rounded-lg shadow-md"
+              className="rounded-lg object-contain shadow-md"
             />
             <div className="absolute -top-2 -left-2 rounded-full bg-red-500 px-2 py-1 text-xs text-white">
               PRIORITY
@@ -361,12 +363,6 @@ function App() {
       description="Explore the various features and use cases of Snapkit's React Image component. Each example shows the component in action alongside its implementation code."
       navigation={navigation}
     >
-      {/* Configuration Section */}
-      <section className="space-y-8">
-        <h2 className="text-3xl font-bold text-gray-900">Configuration</h2>
-        <CdnConfigurationExample />
-      </section>
-
       {/* Basic Features Section */}
       <section className="space-y-8">
         <h2 className="text-3xl font-bold text-gray-900">Basic Features</h2>
@@ -381,7 +377,7 @@ function App() {
   alt="Fox with DPR srcset"
   width={300}
   height={200}
-  className="rounded-lg shadow-md"
+  className="rounded-lg shadow-md object-contain"
 />`}
         >
           <Image
@@ -389,9 +385,15 @@ function App() {
             alt="Fox with DPR srcset"
             width={300}
             height={200}
-            className="rounded-lg shadow-md"
+            className="rounded-lg object-contain shadow-md"
           />
         </ExampleContainer>
+
+        {/* Configuration Section */}
+        <section className="space-y-8">
+          <h2 className="text-3xl font-bold text-gray-900">Configuration</h2>
+          <CdnConfigurationExample />
+        </section>
 
         {/* Fill Mode Example */}
         <ExampleContainer
@@ -618,7 +620,7 @@ function App() {
   width={400}
   height={267}
   priority={true}  // ← This prop automatically creates preload link
-  className="rounded-lg shadow-md"
+  className="rounded-lg shadow-md object-contain"
 />
 
 // Advanced: Manual preload hint creation
@@ -667,16 +669,7 @@ cleanup();
         <ExampleContainer
           id="network-aware"
           title="Network-Aware Quality"
-          code={`// Automatic network-based quality (default)
-<Image
-  src="/landing-page/fox.jpg"
-  alt="Auto quality"
-  width={300}
-  height={200}
-  adjustQualityByNetwork={true}
-/>
-
-// Fixed quality (no network adjustment)
+          code={`// Fixed quality (default, no network adjustment)
 <Image
   src="/landing-page/fox.jpg"
   alt="Fixed quality"
@@ -684,7 +677,17 @@ cleanup();
   height={200}
   quality={95}
   adjustQualityByNetwork={false}
-/>`}
+/>
+
+// Automatic network-based quality
+<Image
+  src="/landing-page/fox.jpg"
+  alt="Auto quality"
+  width={300}
+  height={200}
+  adjustQualityByNetwork={true}
+/>
+`}
         >
           <NetworkQualityDemo />
         </ExampleContainer>

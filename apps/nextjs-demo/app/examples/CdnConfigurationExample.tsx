@@ -7,20 +7,21 @@ import { useState } from 'react';
 
 const description = `
 This example demonstrates how the CDN provider configuration works.
-The current configuration is automatically detected from environment variables.
-You can switch between Snapkit CDN and custom CDN providers like CloudFront, Google Cloud Storage, or Cloudflare.
+There are two provider types: 'snapkit' (managed service) and 'custom' (bring your own CDN).
+With the 'custom' provider, you can use any CDN service like CloudFront, Google Cloud, Cloudflare, or your own infrastructure.
 `;
 
 const code = `import { Image } from '@snapkit-studio/nextjs';
 import { getCdnConfig } from '@snapkit-studio/core';
 
-// Environment variables (in .env.local):
+// Option 1: Snapkit managed CDN
 // NEXT_PUBLIC_IMAGE_CDN_PROVIDER=snapkit
 // NEXT_PUBLIC_SNAPKIT_ORGANIZATION=your-org
 
-// Or for custom CDN:
+// Option 2: Custom CDN (any provider)
 // NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
-// NEXT_PUBLIC_IMAGE_CDN_URL=https://d123.cloudfront.net
+// NEXT_PUBLIC_IMAGE_CDN_URL=https://your-cdn.example.com
+// Examples: CloudFront, Google Cloud CDN, Cloudflare, etc.
 
 function CdnExample() {
   return (
@@ -105,67 +106,59 @@ export function CdnConfigurationExample() {
         </div>
 
         {/* Example Images */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6">
           <div className="space-y-2">
             <h4 className="font-medium">Standard Quality (85%)</h4>
             <Image
-              src="/images/sample-1.jpg"
+              src="/landing-page/fox.jpg"
               alt="CDN Example - Standard"
               width={400}
               height={300}
               quality={85}
-              className="rounded-lg shadow-md"
+              className="rounded-lg object-contain shadow-md"
             />
           </div>
 
           <div className="space-y-2">
             <h4 className="font-medium">High Quality (95%)</h4>
             <Image
-              src="/images/sample-2.jpg"
+              src="/landing-page/fox.jpg"
               alt="CDN Example - High Quality"
               width={400}
               height={300}
               quality={95}
-              className="rounded-lg shadow-md"
+              className="rounded-lg object-contain shadow-md"
             />
           </div>
         </div>
 
-        {/* CDN Provider Comparison */}
-        <div className="grid grid-cols-1 gap-4 text-sm lg:grid-cols-3">
+        {/* CDN Provider Types */}
+        <div className="grid grid-cols-1 gap-4 text-sm lg:grid-cols-2">
           <div className="rounded-lg border p-4">
             <h5 className="mb-2 font-medium text-purple-600 dark:text-purple-400">
-              🚀 Snapkit CDN
+              🚀 Snapkit Provider (provider: "snapkit")
             </h5>
             <ul className="space-y-1 text-gray-600 dark:text-gray-400">
+              <li>• Fully managed CDN service</li>
               <li>• Automatic optimization</li>
               <li>• Smart format delivery</li>
               <li>• Global edge caching</li>
-              <li>• Zero configuration</li>
-            </ul>
-          </div>
-
-          <div className="rounded-lg border p-4">
-            <h5 className="mb-2 font-medium text-orange-600 dark:text-orange-400">
-              ☁️ CloudFront CDN
-            </h5>
-            <ul className="space-y-1 text-gray-600 dark:text-gray-400">
-              <li>• AWS integration</li>
-              <li>• Custom cache policies</li>
-              <li>• Enterprise features</li>
-              <li>• Existing infrastructure</li>
+              <li>• Zero configuration needed</li>
             </ul>
           </div>
 
           <div className="rounded-lg border p-4">
             <h5 className="mb-2 font-medium text-blue-600 dark:text-blue-400">
-              📦 Google Cloud Storage
+              🔧 Custom Provider (provider: "custom")
             </h5>
             <ul className="space-y-1 text-gray-600 dark:text-gray-400">
-              <li>• GCP integration</li>
-              <li>• Cost-effective storage</li>
-              <li>• Custom domains</li>
-              <li>• Global distribution</li>
+              <li>• Bring your own CDN</li>
+              <li>• Works with any CDN service:</li>
+              <li className="ml-4">- AWS CloudFront</li>
+              <li className="ml-4">- Google Cloud CDN</li>
+              <li className="ml-4">- Cloudflare</li>
+              <li className="ml-4">- Your own infrastructure</li>
+              <li>• Full control over configuration</li>
             </ul>
           </div>
         </div>

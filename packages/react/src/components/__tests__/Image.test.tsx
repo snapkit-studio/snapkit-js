@@ -6,19 +6,15 @@ import { Image } from '../Image';
 
 // Mock hooks
 vi.mock('../../hooks', () => ({
-  useImageConfig: vi.fn(() => ({
-    organizationName: 'test-org',
-    baseUrl: 'https://cdn.test.com',
-    defaultQuality: 85,
-    defaultOptimizeFormat: 'auto',
-    imageUrl: 'https://cdn.test.com/test.jpg?optimized',
+  useUnifiedImageEngine: vi.fn(() => ({
+    url: 'https://cdn.test.com/test.jpg?optimized',
     srcSet:
       'https://cdn.test.com/test.jpg?w=400 1x, https://cdn.test.com/test.jpg?w=800 2x',
-    imageSize: {
+    size: {
       width: 800,
       height: 600,
     },
-    finalTransforms: {},
+    transforms: {},
     adjustedQuality: 85,
   })),
   useImageLazyLoading: vi.fn(() => ({

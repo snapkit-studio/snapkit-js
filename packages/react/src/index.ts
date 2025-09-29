@@ -2,7 +2,7 @@
 export { Image } from './components/Image';
 
 // Hooks
-export { useImageConfig } from './hooks';
+export { useUnifiedImageEngine } from './hooks';
 
 // Re-export core types that are commonly used in React components
 export type {

@@ -186,11 +186,11 @@ export function ImageTransformsExample() {
                 width={200}
                 height={150}
                 className="rounded border object-cover"
+                quality={70}
                 transforms={{
                   grayscale: true,
                   blur: 2,
                   flop: true,
-                  quality: 70,
                 }}
               />
             </div>
@@ -216,11 +216,11 @@ export function ImageTransformsExample() {
 />
 
 <Image
+  quality={70}
   transforms={{
     grayscale: true,
     blur: 2,
     flop: true,
-    quality: 70
   }}
 />`}
         </CodeBlock>

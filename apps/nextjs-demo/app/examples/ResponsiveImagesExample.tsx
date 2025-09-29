@@ -143,7 +143,6 @@ export function ResponsiveImagesExample() {
                 height={450}
                 className="w-full rounded border object-cover"
                 sizes="100vw"
-                transforms={{ width: 800, height: 450 }}
               />
             </div>
 
@@ -157,7 +156,6 @@ export function ResponsiveImagesExample() {
                 height={600}
                 className="mx-auto w-full max-w-md rounded border object-cover"
                 sizes="100vw"
-                transforms={{ width: 600, height: 600 }}
               />
             </div>
 
@@ -171,7 +169,6 @@ export function ResponsiveImagesExample() {
                 height={400}
                 className="mx-auto w-full max-w-xs rounded border object-cover"
                 sizes="100vw"
-                transforms={{ width: 300, height: 400 }}
               />
             </div>
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { mergeConfigWithEnv } from '../env-config';
+import { getCdnConfig } from '../env-config';
 
 // Mock the core module first
 vi.mock('@snapkit-studio/core', async () => {
@@ -40,94 +40,40 @@ describe('env-config utilities', () => {
     process.env = originalProcessEnv;
   });
 
-  describe('mergeConfigWithEnv', () => {
-    it('should prioritize props over environment variables', () => {
+  describe('getCdnConfig', () => {
+    it('should return snapkit config when snapkit environment is set', () => {
       process.env.SNAPKIT_ORGANIZATION = 'env-org';
 
-      const propsConfig = {
-        defaultQuality: 90,
-        defaultFormat: 'avif' as const,
-      };
-
-      const result = mergeConfigWithEnv(propsConfig);
+      const result = getCdnConfig();
 
       expect(result).toEqual({
-        cdnConfig: {
-          provider: 'snapkit',
-          organizationName: 'env-org',
-        },
-        defaultQuality: 90,
-        defaultFormat: 'avif',
+        provider: 'snapkit',
+        organizationName: 'env-org',
       });
     });
 
-    it('should fall back to environment variables when props are not provided', () => {
-      process.env.SNAPKIT_ORGANIZATION = 'env-org';
+    it('should return custom config when custom CDN environment is set', () => {
+      process.env.IMAGE_CDN_PROVIDER = 'custom';
+      process.env.IMAGE_CDN_URL = 'https://custom.cdn.example.com';
 
-      const propsConfig = {};
-
-      const result = mergeConfigWithEnv(propsConfig);
+      const result = getCdnConfig();
 
       expect(result).toEqual({
-        cdnConfig: {
-          provider: 'snapkit',
-          organizationName: 'env-org',
-        },
-        defaultQuality: 85,
-        defaultFormat: 'auto',
+        provider: 'custom',
+        baseUrl: 'https://custom.cdn.example.com',
       });
     });
 
-    it('should use default values when neither props nor env are provided', () => {
+    it('should use default organization when no environment variables are set', () => {
       delete process.env.SNAPKIT_ORGANIZATION;
       delete process.env.SNAPKIT_ORGANIZATION_NAME;
+      delete process.env.IMAGE_CDN_PROVIDER;
 
-      const propsConfig = {};
-      const result = mergeConfigWithEnv(propsConfig);
-
-      expect(result).toEqual({
-        cdnConfig: {
-          provider: 'snapkit',
-          organizationName: 'test-org', // default from mock
-        },
-        defaultQuality: 85,
-        defaultFormat: 'auto',
-      });
-    });
-
-    it('should merge partial props with environment defaults', () => {
-      process.env.SNAPKIT_ORGANIZATION = 'env-org';
-
-      const propsConfig = {
-        defaultQuality: 90,
-      };
-
-      const result = mergeConfigWithEnv(propsConfig);
+      const result = getCdnConfig();
 
       expect(result).toEqual({
-        cdnConfig: {
-          provider: 'snapkit',
-          organizationName: 'env-org',
-        },
-        defaultQuality: 90,
-        defaultFormat: 'auto',
-      });
-    });
-
-    it('should use built-in defaults when no config is provided', () => {
-      process.env.SNAPKIT_ORGANIZATION = 'test-org';
-
-      const propsConfig = {};
-
-      const result = mergeConfigWithEnv(propsConfig);
-
-      expect(result).toEqual({
-        cdnConfig: {
-          provider: 'snapkit',
-          organizationName: 'test-org',
-        },
-        defaultQuality: 85,
-        defaultFormat: 'auto',
+        provider: 'snapkit',
+        organizationName: 'test-org', // default from mock
       });
     });
   });

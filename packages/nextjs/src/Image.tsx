@@ -33,7 +33,6 @@ function createTransformLoader(
       width,
       quality,
       transforms,
-      adjustQualityByNetwork: true,
     });
 
     return imageData.url;

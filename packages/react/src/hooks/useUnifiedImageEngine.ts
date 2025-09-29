@@ -122,22 +122,3 @@ export function useUnifiedImageEngine(
 
   return imageData;
 }
-
-/**
- * Backward compatibility hook - same interface as the old useImageConfig
- */
-export function useImageConfig(props: UseUnifiedImageEngineProps) {
-  const imageData = useUnifiedImageEngine(props);
-
-  // Return data in the same format as the old hook for compatibility
-  return {
-    imageUrl: imageData.url,
-    srcSet: imageData.srcSet,
-    imageSize: imageData.size,
-    finalTransforms: imageData.transforms,
-    adjustedQuality: imageData.adjustedQuality,
-    // Legacy properties for backward compatibility
-    urlBuilder: undefined, // Deprecated - engine handles URL building internally
-    config: undefined, // Deprecated - configuration is managed internally
-  };
-}

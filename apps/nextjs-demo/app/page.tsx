@@ -10,19 +10,18 @@ import { ResponsiveImagesExample } from './examples/ResponsiveImagesExample';
 
 const navigation: NavGroup[] = [
   {
-    title: 'Configuration',
-    items: [
-      { id: 'cdn-config', title: 'CDN Configuration', href: '#cdn-config' },
-    ],
-    defaultOpen: true,
-  },
-  {
     title: 'Basic Features',
     items: [
       { id: 'basic', title: 'Basic Image Usage', href: '#basic' },
       { id: 'transforms', title: 'Image Transforms', href: '#transforms' },
     ],
     defaultOpen: true,
+  },
+  {
+    title: 'Configuration',
+    items: [
+      { id: 'cdn-config', title: 'CDN Configuration', href: '#cdn-config' },
+    ],
   },
   {
     title: 'Responsive & Loading',
@@ -63,12 +62,12 @@ export default function Home() {
       navigation={navigation}
     >
       <div className="space-y-16">
-        <section id="cdn-config">
-          <CdnConfigurationExample />
-        </section>
-
         <section id="basic">
           <BasicImageExample />
+        </section>
+
+        <section id="cdn-config">
+          <CdnConfigurationExample />
         </section>
 
         <section id="transforms">

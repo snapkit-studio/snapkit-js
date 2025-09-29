@@ -458,6 +458,17 @@ Coverage reports are generated in multiple formats:
 
 Tests run in a jsdom environment to simulate browser behavior for React Server Components and Client Components testing.
 
+## Browser Support
+
+- **AVIF**: Chrome 85+, Firefox 93+, Edge 91+ (Chromium), Safari 16+
+- **WebP**: Chrome 23+, Firefox 65+, Edge 79+ (Chromium), Safari 14+
+- **Lazy Loading**: Chrome 76+, Firefox 75+, Edge 79+, Safari 15.4+
+- **Intersection Observer**: Chrome 58+, Firefox 55+, Edge 79+, Safari 12.1+
+
+**Note**: Only Chromium-based Edge (79+) is supported. Legacy EdgeHTML Edge (18 and below) is not supported.
+
+**Format Selection**: Automatically selects the best supported format in order: AVIF → WebP → JPEG. Falls back to JPEG in browsers that don't support modern formats.
+
 ## Contributing
 
 Contributions are welcome! Please read our [contributing guide](../../CONTRIBUTING.md) for details on our code of conduct and development process.

@@ -3,7 +3,7 @@
 import { SnapkitImageProps } from '@snapkit-studio/core';
 import { forwardRef, useEffect, useMemo, useState } from 'react';
 
-import { useImageConfig, useImageLazyLoading, useImagePreload } from '../hooks';
+import { useUnifiedImageEngine, useImageLazyLoading, useImagePreload } from '../hooks';
 import {
   createContainerStyle,
   createImageStyle,
@@ -21,9 +21,10 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
       sizes,
       priority = false,
       loading,
+      quality,
       transforms = {},
       dprOptions,
-      adjustQualityByNetwork = true,
+      adjustQualityByNetwork = false,
       style,
       ...props
     },
@@ -33,12 +34,13 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
     const isUrlImageSource = typeof src === 'string';
 
     // Provider-less image optimization hook
-    const { imageUrl, srcSet, imageSize } = useImageConfig({
+    const { url: imageUrl, srcSet, size: imageSize } = useUnifiedImageEngine({
       src,
       width,
       height,
       fill,
       sizes,
+      quality,
       transforms,
       dprOptions,
       adjustQualityByNetwork,

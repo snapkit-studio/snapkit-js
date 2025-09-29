@@ -169,11 +169,12 @@ NEXT_PUBLIC_IMAGE_CDN_URL=https://your-cdn-domain.com
 | `loading`          | `'lazy' \| 'eager'`                   | `'lazy'` | Loading method               |
 | `optimizeFormat`   | `'auto' \| 'avif' \| 'webp' \| 'off'` | `'auto'` | Format optimization          |
 | `transforms`       | `ImageTransforms`                     | `{}`     | Image transformation options |
-| `organizationName` | `string`                              | -        | Override organization name (deprecated - use environment variables) |
 
 ## Key Features
 
 ### Automatic Format Detection
+
+The library uses Canvas-based detection to determine browser support for modern image formats:
 
 ```tsx
 // Automatically serves AVIF, WebP, or JPEG based on browser
@@ -194,6 +195,15 @@ NEXT_PUBLIC_IMAGE_CDN_URL=https://your-cdn-domain.com
   optimizeFormat="webp"
 />
 ```
+
+**Format Selection Logic:**
+1. **AVIF**: Chosen if browser supports it (Chrome 85+, Firefox 93+, Edge 91+, Safari 16+)
+2. **WebP**: Chosen if AVIF not supported but WebP is (Chrome 23+, Firefox 65+, Edge 79+, Safari 14+)
+3. **JPEG**: Final fallback for all other browsers
+
+**Detection Method:**
+- **Client-side**: Uses `Canvas.toDataURL()` to test format support
+- **Server-side**: Conservative fallback to basic formats for SSR consistency
 
 ### Responsive Images
 
@@ -401,12 +411,14 @@ Explore features including:
 
 ## Browser Support
 
-- **AVIF**: Chrome 85+, Firefox 93+, Safari 16+
-- **WebP**: Chrome 23+, Firefox 65+, Safari 14+
-- **Lazy Loading**: Chrome 76+, Firefox 75+, Safari 15.4+
-- **Intersection Observer**: Chrome 58+, Firefox 55+, Safari 12.1+
+- **AVIF**: Chrome 85+, Firefox 93+, Edge 91+ (Chromium), Safari 16+
+- **WebP**: Chrome 23+, Firefox 65+, Edge 79+ (Chromium), Safari 14+
+- **Lazy Loading**: Chrome 76+, Firefox 75+, Edge 79+, Safari 15.4+
+- **Intersection Observer**: Chrome 58+, Firefox 55+, Edge 79+, Safari 12.1+
 
-Automatically falls back to JPEG/PNG in older browsers.
+**Note**: Only Chromium-based Edge (79+) is supported. Legacy EdgeHTML Edge (18 and below) is not supported.
+
+**Format Selection**: Automatically selects the best supported format in order: AVIF → WebP → JPEG. Falls back to JPEG in browsers that don't support modern formats.
 
 ## Testing
 

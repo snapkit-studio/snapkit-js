@@ -140,7 +140,7 @@ import { Image } from '@snapkit-studio/react';
   alt="Optimized fox image"
   width={300}
   height={200}
-  className="rounded-lg shadow-md"
+  className="rounded-lg shadow-md object-contain"
 />;
 ```
 

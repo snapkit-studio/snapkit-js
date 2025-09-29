@@ -7,8 +7,11 @@ import type { ImageProps } from 'next/image';
 export interface SnapkitImageProps extends Omit<ImageProps, 'loader'> {
   /**
    * Image transforms to apply
+   *
+   * width, height, quality are not allowed to be passed through transforms
+   * because they are handled by the loader.
    */
-  transforms?: ImageTransforms;
+  transforms?: Omit<ImageTransforms, 'width' | 'height' | 'quality'>;
 
   /**
    * DPR (Device Pixel Ratio) options (client-only feature)
