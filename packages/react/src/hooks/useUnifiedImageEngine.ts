@@ -3,7 +3,6 @@
 import {
   DprDetectionOptions,
   getCdnConfig,
-  ImageEngineCache,
   ImageEngineParams,
   ImageRenderData,
   SnapkitConfig,
