@@ -25,6 +25,36 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./constants": {
+      "types": "./dist/constants.d.ts",
+      "import": "./dist/constants.mjs",
+      "require": "./dist/constants.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.js"
+    },
+    "./responsive": {
+      "types": "./dist/responsive.d.ts",
+      "import": "./dist/responsive.mjs",
+      "require": "./dist/responsive.js"
+    },
+    "./format-detection": {
+      "types": "./dist/format-detection.d.ts",
+      "import": "./dist/format-detection.mjs",
+      "require": "./dist/format-detection.js"
+    },
+    "./browser-compatibility": {
+      "types": "./dist/browser-compatibility.d.ts",
+      "import": "./dist/browser-compatibility.mjs",
+      "require": "./dist/browser-compatibility.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js"
     }
   },
   "main": "./dist/index.js",

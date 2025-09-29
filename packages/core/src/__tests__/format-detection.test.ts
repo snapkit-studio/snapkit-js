@@ -320,15 +320,15 @@ describe('Format Detection Utils', () => {
       vi.unstubAllGlobals();
     });
 
-    it('Should detect AVIF and WebP support in Edge 91+', () => {
+    it('Should detect AVIF and WebP support in Chromium Edge 91+', () => {
       vi.stubGlobal('navigator', {
         userAgent:
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edge/91.0.864.59',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
       });
 
       const result = estimateFormatSupportFromUA();
 
-      expect(result.avif).toBe(true); // Edge 91+ supports AVIF
+      expect(result.avif).toBe(true); // Chromium Edge 91+ supports AVIF
       expect(result.webp).toBe(true);
 
       vi.unstubAllGlobals();

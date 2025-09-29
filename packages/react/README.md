@@ -20,8 +20,10 @@ pnpm add @snapkit-studio/react
 ## Features
 
 - **React Image Component** - Drop-in replacement for HTML img with optimization
+- **Flexible CDN Configuration** - Use Snapkit CDN or integrate with your existing infrastructure (CloudFront, GCS, Cloudflare)
 - **Provider-less Architecture** - Direct component usage without wrappers
 - **Next.js Compatible** - Same API as Next.js Image component
+- **Environment Auto-Detection** - Automatically reads framework-specific environment variables
 - **Automatic Format Detection** - AVIF, WebP, JPEG fallback
 - **Responsive Images** - Automatic srcset generation
 - **DPR-based Optimization** - Crisp images on high-DPI displays
@@ -31,13 +33,32 @@ pnpm add @snapkit-studio/react
 
 ## Quick Start
 
-### 1. Environment Setup
+### 1. CDN Configuration
+
+Choose between Snapkit CDN for zero-config optimization or custom CDN integration:
+
+#### Option A: Snapkit CDN (Recommended)
 
 ```bash
-# .env (Vite/CRA) - Required and Optional variables
-VITE_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
-VITE_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (default: 85)
-VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (default: auto)
+# .env (Vite/CRA) - Snapkit CDN
+VITE_IMAGE_CDN_PROVIDER=snapkit
+VITE_SNAPKIT_ORGANIZATION=your-organization-name
+```
+
+#### Option B: Custom CDN Integration
+
+```bash
+# .env (Vite/CRA) - Custom CDN (Google Cloud Storage example)
+VITE_IMAGE_CDN_PROVIDER=custom
+VITE_IMAGE_CDN_URL=https://storage.googleapis.com/my-image-bucket
+
+# AWS CloudFront example
+# VITE_IMAGE_CDN_PROVIDER=custom
+# VITE_IMAGE_CDN_URL=https://d1234567890.cloudfront.net
+
+# Cloudflare or any custom domain
+# VITE_IMAGE_CDN_PROVIDER=custom
+# VITE_IMAGE_CDN_URL=https://images.example.com
 ```
 
 ### 2. Basic Usage
@@ -83,28 +104,55 @@ import {
 import { Image, useImageRefresh } from '@snapkit-studio/react';
 ```
 
-## Environment Configuration
+## CDN Configuration
 
-### All Available Variables
+The library supports flexible CDN configuration through environment variables. Configuration is automatically detected using `getCdnConfig()` from `@snapkit-studio/core`.
+
+### Snapkit CDN
+
+Zero-configuration setup with automatic optimization, smart format delivery, and global edge caching:
 
 ```bash
 # .env (Vite/CRA)
-VITE_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
-VITE_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (1-100, default: 85)
-VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (auto|avif|webp|off, default: auto)
+VITE_IMAGE_CDN_PROVIDER=snapkit
+VITE_SNAPKIT_ORGANIZATION=your-organization-name
 
 # .env.local (Next.js) - If using React package in Next.js
-NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name
-NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85
-NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=snapkit
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION=your-organization-name
 ```
 
-**Format Options:**
+### Custom CDN Integration
 
-- `auto`: Automatically select best format based on browser support
-- `avif`: Use AVIF format if supported, fallback to WebP/JPEG
-- `webp`: Use WebP format if supported, fallback to JPEG
-- `off`: Disable format optimization
+Use your existing CDN infrastructure with Snapkit's optimization features:
+
+```bash
+# .env (Vite/CRA) - Custom CDN examples
+VITE_IMAGE_CDN_PROVIDER=custom
+VITE_IMAGE_CDN_URL=https://your-cdn-domain.com
+
+# .env.local (Next.js) - Custom CDN examples
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
+NEXT_PUBLIC_IMAGE_CDN_URL=https://your-cdn-domain.com
+```
+
+### Environment Variables Reference
+
+#### Vite/CRA
+
+| Variable                    | Required For | Description                         |
+| --------------------------- | ------------ | ----------------------------------- |
+| `VITE_IMAGE_CDN_PROVIDER`   | All setups   | CDN provider: `snapkit` or `custom` |
+| `VITE_SNAPKIT_ORGANIZATION` | Snapkit CDN  | Your Snapkit organization name      |
+| `VITE_IMAGE_CDN_URL`        | Custom CDN   | Your custom CDN base URL            |
+
+#### Next.js (when using React package)
+
+| Variable                                | Required For | Description                         |
+| --------------------------------------- | ------------ | ----------------------------------- |
+| `NEXT_PUBLIC_IMAGE_CDN_PROVIDER`        | All setups   | CDN provider: `snapkit` or `custom` |
+| `NEXT_PUBLIC_SNAPKIT_ORGANIZATION`      | Snapkit CDN  | Your Snapkit organization name      |
+| `NEXT_PUBLIC_IMAGE_CDN_URL`             | Custom CDN   | Your custom CDN base URL            |
 
 ## Image Component Props
 
@@ -121,11 +169,12 @@ NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto
 | `loading`          | `'lazy' \| 'eager'`                   | `'lazy'` | Loading method               |
 | `optimizeFormat`   | `'auto' \| 'avif' \| 'webp' \| 'off'` | `'auto'` | Format optimization          |
 | `transforms`       | `ImageTransforms`                     | `{}`     | Image transformation options |
-| `organizationName` | `string`                              | -        | Override organization name   |
 
 ## Key Features
 
 ### Automatic Format Detection
+
+The library uses Canvas-based detection to determine browser support for modern image formats:
 
 ```tsx
 // Automatically serves AVIF, WebP, or JPEG based on browser
@@ -146,6 +195,15 @@ NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto
   optimizeFormat="webp"
 />
 ```
+
+**Format Selection Logic:**
+1. **AVIF**: Chosen if browser supports it (Chrome 85+, Firefox 93+, Edge 91+, Safari 16+)
+2. **WebP**: Chosen if AVIF not supported but WebP is (Chrome 23+, Firefox 65+, Edge 79+, Safari 14+)
+3. **JPEG**: Final fallback for all other browsers
+
+**Detection Method:**
+- **Client-side**: Uses `Canvas.toDataURL()` to test format support
+- **Server-side**: Conservative fallback to basic formats for SSR consistency
 
 ### Responsive Images
 
@@ -353,12 +411,14 @@ Explore features including:
 
 ## Browser Support
 
-- **AVIF**: Chrome 85+, Firefox 93+, Safari 16+
-- **WebP**: Chrome 23+, Firefox 65+, Safari 14+
-- **Lazy Loading**: Chrome 76+, Firefox 75+, Safari 15.4+
-- **Intersection Observer**: Chrome 58+, Firefox 55+, Safari 12.1+
+- **AVIF**: Chrome 85+, Firefox 93+, Edge 91+ (Chromium), Safari 16+
+- **WebP**: Chrome 23+, Firefox 65+, Edge 79+ (Chromium), Safari 14+
+- **Lazy Loading**: Chrome 76+, Firefox 75+, Edge 79+, Safari 15.4+
+- **Intersection Observer**: Chrome 58+, Firefox 55+, Edge 79+, Safari 12.1+
 
-Automatically falls back to JPEG/PNG in older browsers.
+**Note**: Only Chromium-based Edge (79+) is supported. Legacy EdgeHTML Edge (18 and below) is not supported.
+
+**Format Selection**: Automatically selects the best supported format in order: AVIF → WebP → JPEG. Falls back to JPEG in browsers that don't support modern formats.
 
 ## Testing
 

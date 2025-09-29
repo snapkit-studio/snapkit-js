@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
+import { useEffect, useState } from 'react';
 import { createHighlighter, type Highlighter } from 'shiki';
 
 import type { CodeBlockProps } from '../../types';
@@ -21,7 +21,6 @@ async function getHighlighter(): Promise<Highlighter> {
 export function CodeBlock({
   children,
   language = 'tsx',
-  showLineNumbers = false,
   className = '',
 }: CodeBlockProps) {
   const [highlightedCode, setHighlightedCode] = useState<string>('');

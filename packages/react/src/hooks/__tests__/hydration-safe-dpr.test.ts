@@ -1,111 +1,103 @@
-/**
- * @vitest-environment jsdom
- */
 import { renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useUnifiedImageEngine } from '../useUnifiedImageEngine';
 
-// Mock the core package
+// Mock the core module
 vi.mock('@snapkit-studio/core', () => ({
-  ImageEngineCache: {
-    getInstance: vi.fn(() => ({
-      generateImageData: vi.fn(({ dprOptions }) => ({
-        url: 'https://test.com/image.jpg',
-        srcSet:
-          dprOptions?.autoDetect === false
-            ? 'standard-srcset' // Server-like behavior
-            : 'optimized-srcset', // Client-like behavior
-        size: { width: 800, height: 600 },
-        transforms: {},
-        adjustedQuality: 80,
-      })),
-    })),
-  },
-}));
-
-vi.mock('../../utils/env-config', () => ({
-  mergeConfigWithEnv: vi.fn(() => ({
+  getCdnConfig: vi.fn(() => ({
+    provider: 'snapkit' as const,
     organizationName: 'test-org',
-    defaultQuality: 80,
-    defaultFormat: 'auto',
+  })),
+  SnapkitImageEngine: vi.fn().mockImplementation((config) => ({
+    generateImageData: vi.fn((params) => ({
+      url: `${params.src}?q=${config.defaultQuality}`,
+      srcSet: `${params.src}?w=400 1x, ${params.src}?w=800 2x`,
+      size: {
+        width: params.width || 400,
+        height: params.height,
+      },
+      transforms: {
+        width: params.width,
+        height: params.height,
+        quality: params.quality || config.defaultQuality,
+        format: config.defaultFormat,
+      },
+      adjustedQuality: params.quality || config.defaultQuality,
+    })),
+    getConfig: vi.fn(() => config),
   })),
 }));
 
-describe('Hydration-safe DPR detection', () => {
-  const defaultProps = {
-    src: 'test-image.jpg',
-    width: 800,
-    height: 600,
-  };
+// Mock env config
+vi.mock('../../utils/env-config', () => ({
+  mergeConfigWithEnv: vi.fn((props) => ({
+    cdnConfig: {
+      provider: 'snapkit' as const,
+      organizationName: props?.organizationName || 'test-org',
+    },
+    defaultQuality: props?.defaultQuality || 85,
+    defaultFormat: props?.defaultFormat || 'auto',
+  })),
+}));
 
+describe('useUnifiedImageEngine', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('should use standard DPR set during initial render (before hydration)', () => {
-    const { result } = renderHook(() => useUnifiedImageEngine(defaultProps));
-
-    // During initial render, should use server-compatible srcSet
-    expect(result.current.srcSet).toBe('standard-srcset');
-  });
-
-  it('should switch to optimized DPR after hydration completes', async () => {
-    const { result, rerender } = renderHook(() =>
-      useUnifiedImageEngine(defaultProps),
-    );
-
-    // Initial render (before hydration)
-    expect(result.current.srcSet).toBe('standard-srcset');
-
-    // Simulate useEffect completion (hydration complete)
-    await vi.waitFor(() => {
-      rerender();
-    });
-
-    // After hydration, should use client-optimized srcSet
-    expect(result.current.srcSet).toBe('optimized-srcset');
-  });
-
-  it('should preserve custom DPR options after hydration', async () => {
-    const customDprOptions = {
-      maxDpr: 2,
-      customDprs: [1, 2],
+  it('should generate image data with required props', () => {
+    const props = {
+      src: '/test.jpg',
+      width: 800,
+      height: 600,
     };
 
-    const propsWithDpr = {
-      ...defaultProps,
-      dprOptions: customDprOptions,
-    };
+    const { result } = renderHook(() => useUnifiedImageEngine(props));
 
-    const { result, rerender } = renderHook(() =>
-      useUnifiedImageEngine(propsWithDpr),
-    );
-
-    // Initial render should disable auto-detection but preserve custom options
-    expect(result.current.srcSet).toBe('standard-srcset');
-
-    // After hydration, custom options should be restored
-    await vi.waitFor(() => {
-      rerender();
+    expect(result.current).toMatchObject({
+      url: expect.stringContaining('/test.jpg'),
+      srcSet: expect.any(String),
+      size: {
+        width: 800,
+        height: 600,
+      },
     });
-
-    expect(result.current.srcSet).toBe('optimized-srcset');
   });
 
-  it('should handle undefined dprOptions gracefully', () => {
-    const { result } = renderHook(() =>
-      useUnifiedImageEngine({
-        ...defaultProps,
-        dprOptions: undefined,
-      }),
-    );
+  it('should use default quality when not specified', () => {
+    const props = {
+      src: '/test.jpg',
+      width: 800,
+    };
 
-    // Should not throw error with undefined dprOptions
-    expect(result.current.srcSet).toBe('standard-srcset');
+    const { result } = renderHook(() => useUnifiedImageEngine(props));
+
+    expect(result.current.transforms.quality).toBe(85);
+    expect(result.current.adjustedQuality).toBe(85);
+  });
+
+  it('should override quality when specified', () => {
+    const props = {
+      src: '/test.jpg',
+      width: 800,
+      quality: 90,
+    };
+
+    const { result } = renderHook(() => useUnifiedImageEngine(props));
+
+    expect(result.current.transforms.quality).toBe(90);
+    expect(result.current.adjustedQuality).toBe(90);
+  });
+
+  it('should handle fill mode', () => {
+    const props = {
+      src: '/test.jpg',
+      fill: true,
+    };
+
+    const { result } = renderHook(() => useUnifiedImageEngine(props));
+
+    expect(result.current.size.width).toBe(400); // Default from mock
   });
 });

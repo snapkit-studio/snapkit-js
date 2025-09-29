@@ -1,7 +1,9 @@
-import { SnapkitConfig, SnapkitImageEngine } from '@snapkit-studio/core';
+import {
+  getCdnConfig,
+  SnapkitConfig,
+  SnapkitImageEngine,
+} from '@snapkit-studio/core';
 import { ImageLoader } from 'next/image';
-
-import { parseEnvConfig } from './utils/env-config';
 
 /**
  * Default Snapkit image loader for Next.js
@@ -26,21 +28,14 @@ export const snapkitLoader: ImageLoader = ({ src, width, quality }): string => {
  * @throws {Error} When invalid configuration options are provided
  */
 export function createSnapkitLoader(): ImageLoader {
-  const envConfig = parseEnvConfig();
-
-  if (!envConfig.organizationName) {
-    throw new Error(
-      'NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME is not set. ' +
-        'Please add NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME to your .env file or environment variables. ' +
-        'For Next.js, all Snapkit environment variables must use the NEXT_PUBLIC_ prefix.',
-    );
-  }
+  // Use the new getCdnConfig function to get CDN configuration
+  const cdnConfig = getCdnConfig();
 
   // Create unified image engine configuration
   const config: SnapkitConfig = {
-    organizationName: envConfig.organizationName,
-    defaultQuality: envConfig.defaultQuality,
-    defaultFormat: envConfig.defaultFormat,
+    cdnConfig,
+    defaultQuality: 85,
+    defaultFormat: 'auto',
   };
 
   let imageEngine: SnapkitImageEngine;

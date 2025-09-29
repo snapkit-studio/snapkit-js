@@ -7,22 +7,7 @@ Next-generation image optimization for React and Next.js applications.
 
 ## Overview
 
-Drop-in image optimization with automatic format conversion (AVIF/WebP), lazy loading, and responsive images. Zero-config for Next.js, minimal setup for React.
-
-### 🚧 React Server Components (RSC) Status
-
-#### Next.js Package
-
-- The `@snapkit-studio/nextjs` `Image` component is currently **client-only**.
-- RSC 및 서버 컴포넌트 환경에서는 직접 사용할 수 없으며, `'use client'` 지시자가 필요합니다.
-- 향후 RSC 지원을 준비하면서도 기존 Next.js Image 통합 흐름은 유지됩니다.
-
-#### React Package
-
-- **Framework-agnostic RSC support** - works in any React 18+ environment
-- **ServerImage and ClientImage components** for explicit control
-- **Smaller bundle size** without Next.js dependencies
-- **Consistent explicit component selection** approach
+Drop-in image optimization with automatic format conversion (AVIF/WebP), lazy loading, and responsive images. Supports **flexible CDN configuration** - use Snapkit CDN for zero-config optimization or integrate with your existing CDN infrastructure (CloudFront, Google Cloud Storage, Cloudflare, etc.).
 
 ## Packages
 
@@ -41,8 +26,13 @@ npm install @snapkit-studio/nextjs
 ```
 
 ```bash
-# .env.local
-NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name
+# .env.local - Using Snapkit CDN (Default)
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=snapkit
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION=your-organization-name
+
+# Or using Custom CDN (CloudFront example)
+# NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
+# NEXT_PUBLIC_IMAGE_CDN_URL=https://d1234567890.cloudfront.net
 ```
 
 ```tsx
@@ -75,8 +65,13 @@ npm install @snapkit-studio/react
 ```
 
 ```bash
-# .env
-VITE_SNAPKIT_ORGANIZATION_NAME=your-organization-name
+# .env - Using Snapkit CDN (Default)
+VITE_IMAGE_CDN_PROVIDER=snapkit
+VITE_SNAPKIT_ORGANIZATION=your-organization-name
+
+# Or using Custom CDN (Google Cloud Storage example)
+# VITE_IMAGE_CDN_PROVIDER=custom
+# VITE_IMAGE_CDN_URL=https://storage.googleapis.com/my-image-bucket
 ```
 
 ```tsx
@@ -122,23 +117,73 @@ function App() {
 | DPR Optimization             | ✅                             | ✅                    |
 | Provider Required            | ❌                             | ❌                    |
 
-## Environment Variables
+## CDN Configuration
 
-### Next.js
+Snapkit supports flexible CDN configuration. Choose between Snapkit's optimized CDN or integrate with your existing infrastructure:
 
-| Variable                                      | Default  | Description                                   |
-| --------------------------------------------- | -------- | --------------------------------------------- |
-| `NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME`       | Required | Your Snapkit organization name                |
-| `NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY`         | `85`     | Default image quality (1-100)                 |
-| `NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | `auto`   | Default format: `auto`, `avif`, `webp`, `off` |
+### Snapkit CDN (Recommended)
 
-### React (Vite/CRA)
+Zero-configuration setup with automatic optimization, smart format delivery, and global edge caching:
 
-| Variable                               | Default  | Description                                   |
-| -------------------------------------- | -------- | --------------------------------------------- |
-| `VITE_SNAPKIT_ORGANIZATION_NAME`       | Required | Your Snapkit organization name                |
-| `VITE_SNAPKIT_DEFAULT_QUALITY`         | `85`     | Default image quality (1-100)                 |
-| `VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | `auto`   | Default format: `auto`, `avif`, `webp`, `off` |
+```bash
+# Next.js
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=snapkit
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION=your-organization
+
+# React/Vite
+VITE_IMAGE_CDN_PROVIDER=snapkit
+VITE_SNAPKIT_ORGANIZATION=your-organization
+```
+
+### Custom CDN Integration
+
+Use your existing CDN infrastructure with Snapkit's optimization features:
+
+```bash
+# AWS CloudFront
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
+NEXT_PUBLIC_IMAGE_CDN_URL=https://d1234567890.cloudfront.net
+
+# Google Cloud Storage
+VITE_IMAGE_CDN_PROVIDER=custom
+VITE_IMAGE_CDN_URL=https://storage.googleapis.com/my-image-bucket
+
+# Cloudflare or any custom domain
+IMAGE_CDN_PROVIDER=custom
+IMAGE_CDN_URL=https://images.example.com
+```
+
+### Environment Variables Reference
+
+#### Next.js
+
+| Variable                                | Required For | Description                         |
+| --------------------------------------- | ------------ | ----------------------------------- |
+| `NEXT_PUBLIC_IMAGE_CDN_PROVIDER`        | All setups   | CDN provider: `snapkit` or `custom` |
+| `NEXT_PUBLIC_SNAPKIT_ORGANIZATION`      | Snapkit CDN  | Your Snapkit organization name      |
+| `NEXT_PUBLIC_IMAGE_CDN_URL`             | Custom CDN   | Your custom CDN base URL            |
+
+#### React (Vite/CRA)
+
+| Variable                       | Required For | Description                         |
+| ------------------------------ | ------------ | ----------------------------------- |
+| `VITE_IMAGE_CDN_PROVIDER`      | All setups   | CDN provider: `snapkit` or `custom` |
+| `VITE_SNAPKIT_ORGANIZATION`    | Snapkit CDN  | Your Snapkit organization name      |
+| `VITE_IMAGE_CDN_URL`           | Custom CDN   | Your custom CDN base URL            |
+
+#### Node.js/Server
+
+| Variable                 | Required For | Description                         |
+| ------------------------ | ------------ | ----------------------------------- |
+| `IMAGE_CDN_PROVIDER`     | All setups   | CDN provider: `snapkit` or `custom` |
+| `SNAPKIT_ORGANIZATION`   | Snapkit CDN  | Your Snapkit organization name      |
+| `IMAGE_CDN_URL`          | Custom CDN   | Your custom CDN base URL            |
+
+## Migration Guide
+
+Migrating from existing image solutions? Check out our comprehensive migration guides:
+
+- **[From Next.js Image →](./docs/MIGRATION-FROM-NEXTJS.md)** Complete step-by-step guide with code examples and troubleshooting
 
 ## Live Demos
 

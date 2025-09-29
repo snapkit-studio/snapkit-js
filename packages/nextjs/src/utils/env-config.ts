@@ -1,6 +1,6 @@
 import {
-  getEnvConfig as coreGetEnvConfig,
   EnvironmentStrategy,
+  getCdnConfig,
   SnapkitConfig,
   SnapkitEnvConfig,
 } from '@snapkit-studio/core';
@@ -14,12 +14,18 @@ const nextjsStrategy: EnvironmentStrategy = {
   getEnvVar: (name: string) => {
     // Next.js requires explicit environment variable references for build-time replacement
     switch (name) {
+      case 'SNAPKIT_ORGANIZATION':
+        return process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION;
       case 'SNAPKIT_ORGANIZATION_NAME':
         return process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME;
       case 'SNAPKIT_DEFAULT_QUALITY':
         return process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY;
       case 'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT':
         return process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT;
+      case 'IMAGE_CDN_PROVIDER':
+        return process.env.NEXT_PUBLIC_IMAGE_CDN_PROVIDER;
+      case 'IMAGE_CDN_URL':
+        return process.env.NEXT_PUBLIC_IMAGE_CDN_URL;
       default:
         return undefined;
     }
@@ -78,7 +84,20 @@ function validateNextjsEnvConfig(envConfig: SnapkitEnvConfig): {
  * Only reads NEXT_PUBLIC_ prefixed environment variables
  */
 export function parseEnvConfig(): SnapkitConfig {
-  const envConfig = coreGetEnvConfig(nextjsStrategy);
+  const cdnConfig = getCdnConfig(nextjsStrategy);
+
+  // Get additional env config values using the strategy
+  const envConfig: SnapkitEnvConfig = {
+    SNAPKIT_ORGANIZATION_NAME: nextjsStrategy.getEnvVar(
+      'SNAPKIT_ORGANIZATION_NAME',
+    ),
+    SNAPKIT_DEFAULT_QUALITY: nextjsStrategy.getEnvVar('SNAPKIT_DEFAULT_QUALITY')
+      ? Number(nextjsStrategy.getEnvVar('SNAPKIT_DEFAULT_QUALITY'))
+      : undefined,
+    SNAPKIT_DEFAULT_OPTIMIZE_FORMAT: nextjsStrategy.getEnvVar(
+      'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT',
+    ) as 'avif' | 'webp' | 'auto' | undefined,
+  };
 
   // Use Next.js-specific validation
   const { isValid, errors, warnings } = validateNextjsEnvConfig(envConfig);
@@ -96,7 +115,7 @@ export function parseEnvConfig(): SnapkitConfig {
   }
 
   return {
-    organizationName: envConfig.SNAPKIT_ORGANIZATION_NAME!,
+    cdnConfig,
     defaultQuality: envConfig.SNAPKIT_DEFAULT_QUALITY || 85,
     defaultFormat: envConfig.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT || 'auto',
   };
@@ -109,7 +128,21 @@ export function parseEnvConfig(): SnapkitConfig {
 export function mergeConfigWithEnv(
   propsConfig: Partial<SnapkitConfig>,
 ): SnapkitConfig {
-  const envConfig = coreGetEnvConfig(nextjsStrategy);
+  const cdnConfig = propsConfig.cdnConfig || getCdnConfig(nextjsStrategy);
+
+  // Get additional env config values using the strategy
+  const envConfig: SnapkitEnvConfig = {
+    SNAPKIT_ORGANIZATION_NAME: nextjsStrategy.getEnvVar(
+      'SNAPKIT_ORGANIZATION_NAME',
+    ),
+    SNAPKIT_DEFAULT_QUALITY: nextjsStrategy.getEnvVar('SNAPKIT_DEFAULT_QUALITY')
+      ? Number(nextjsStrategy.getEnvVar('SNAPKIT_DEFAULT_QUALITY'))
+      : undefined,
+    SNAPKIT_DEFAULT_OPTIMIZE_FORMAT: nextjsStrategy.getEnvVar(
+      'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT',
+    ) as 'avif' | 'webp' | 'auto' | undefined,
+  };
+
   const { isValid, errors, warnings } = validateNextjsEnvConfig(envConfig);
 
   if (warnings.length > 0) {
@@ -122,18 +155,8 @@ export function mergeConfigWithEnv(
     );
   }
 
-  const organizationName =
-    propsConfig.organizationName ?? envConfig.SNAPKIT_ORGANIZATION_NAME;
-
-  if (!organizationName) {
-    throw new Error(
-      'NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME is required. ' +
-        'Please set it in your .env.local file.',
-    );
-  }
-
   return {
-    organizationName,
+    cdnConfig,
     defaultQuality:
       propsConfig.defaultQuality ?? envConfig.SNAPKIT_DEFAULT_QUALITY ?? 85,
     defaultFormat:
@@ -148,6 +171,16 @@ export function mergeConfigWithEnv(
  * Only validates NEXT_PUBLIC_ prefixed environment variables
  */
 export function validateEnvConfig() {
-  const envConfig = coreGetEnvConfig(nextjsStrategy);
+  const envConfig: SnapkitEnvConfig = {
+    SNAPKIT_ORGANIZATION_NAME: nextjsStrategy.getEnvVar(
+      'SNAPKIT_ORGANIZATION_NAME',
+    ),
+    SNAPKIT_DEFAULT_QUALITY: nextjsStrategy.getEnvVar('SNAPKIT_DEFAULT_QUALITY')
+      ? Number(nextjsStrategy.getEnvVar('SNAPKIT_DEFAULT_QUALITY'))
+      : undefined,
+    SNAPKIT_DEFAULT_OPTIMIZE_FORMAT: nextjsStrategy.getEnvVar(
+      'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT',
+    ) as 'avif' | 'webp' | 'auto' | undefined,
+  };
   return validateNextjsEnvConfig(envConfig);
 }

@@ -64,7 +64,8 @@ export class ImageEngineCache {
   private static createKey(config: SnapkitConfig): string {
     // Create a deterministic key from config properties
     const keyParts = [
-      config.organizationName,
+      config.cdnConfig.provider,
+      config.cdnConfig.organizationName || config.cdnConfig.baseUrl,
       config.defaultQuality || 85,
       config.defaultFormat || 'auto',
     ];

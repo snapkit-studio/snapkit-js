@@ -24,17 +24,14 @@ export function useImageLazyLoading({
   const isUnmountedRef = useRef(false);
 
   // Callback to handle intersection with safety check
-  const handleIntersection = useCallback(
-    (_entry: IntersectionObserverEntry) => {
-      // Check if component is still mounted before updating state
-      if (!isUnmountedRef.current) {
-        setIsVisible(true);
-        // Note: unobserve is now handled automatically in createEnhancedLazyLoadObserver
-        // to prevent memory leaks and duplicate unobserve calls
-      }
-    },
-    [],
-  );
+  const handleIntersection = useCallback(() => {
+    // Check if component is still mounted before updating state
+    if (!isUnmountedRef.current) {
+      setIsVisible(true);
+      // Note: unobserve is now handled automatically in createEnhancedLazyLoadObserver
+      // to prevent memory leaks and duplicate unobserve calls
+    }
+  }, []);
 
   // Enhanced lazy loading setup with proper cleanup
   useEffect(() => {

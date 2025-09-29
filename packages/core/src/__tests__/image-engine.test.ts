@@ -9,7 +9,10 @@ describe('SnapkitImageEngine', () => {
 
   beforeEach(() => {
     config = {
-      organizationName: 'test-org',
+      cdnConfig: {
+        provider: 'snapkit',
+        organizationName: 'test-org',
+      },
       defaultQuality: 80,
       defaultFormat: 'auto',
     };
@@ -23,8 +26,16 @@ describe('SnapkitImageEngine', () => {
     });
 
     it('should throw error with invalid organizationName', () => {
+      const invalidConfig: SnapkitConfig = {
+        ...config,
+        cdnConfig: {
+          provider: 'snapkit',
+          organizationName: '',
+        },
+      };
+
       expect(() => {
-        new SnapkitImageEngine({ ...config, organizationName: '' });
+        new SnapkitImageEngine(invalidConfig);
       }).toThrow('organizationName is required');
     });
 
@@ -175,6 +186,66 @@ describe('SnapkitImageEngine', () => {
 
       expect(result.adjustedQuality).toBe(90);
       expect(result.transforms.quality).toBe(90);
+    });
+
+    it('should NOT adjust quality by default when adjustQualityByNetwork is not specified', () => {
+      const params: ImageEngineParams = {
+        src: 'test.jpg',
+        width: 800,
+        quality: 100, // Explicit quality setting
+      };
+
+      const result = engine.generateImageData(params);
+
+      // Quality should remain unchanged since adjustQualityByNetwork defaults to false
+      expect(result.adjustedQuality).toBe(100);
+      expect(result.transforms.quality).toBe(100);
+    });
+
+    it('should preserve user-specified quality when adjustQualityByNetwork is undefined', () => {
+      const params: ImageEngineParams = {
+        src: 'test.jpg',
+        width: 800,
+        quality: 95,
+        // adjustQualityByNetwork is undefined - should default to false
+      };
+
+      const result = engine.generateImageData(params);
+
+      // No network adjustment should be applied
+      expect(result.adjustedQuality).toBe(95);
+      expect(result.transforms.quality).toBe(95);
+    });
+
+    it('should use config defaultQuality when quality param not specified and no network adjustment', () => {
+      const params: ImageEngineParams = {
+        src: 'test.jpg',
+        width: 800,
+        // quality is undefined
+        // adjustQualityByNetwork is undefined - should default to false
+      };
+
+      const result = engine.generateImageData(params);
+
+      // Should use config.defaultQuality (80) without network adjustment
+      expect(result.adjustedQuality).toBe(config.defaultQuality);
+      expect(result.transforms.quality).toBe(config.defaultQuality);
+    });
+
+    it('should only apply network adjustment when explicitly set to true', () => {
+      const params: ImageEngineParams = {
+        src: 'test.jpg',
+        width: 800,
+        quality: 90,
+        adjustQualityByNetwork: true, // Explicitly set to true
+      };
+
+      const result = engine.generateImageData(params);
+
+      // Network adjustment should be applied (result may differ from input)
+      expect(result.adjustedQuality).toBeDefined();
+      expect(result.transforms.quality).toBe(result.adjustedQuality);
+      // Note: We can't predict the exact adjusted value as it depends on network conditions
     });
   });
 

@@ -1,53 +1,84 @@
-import type { SnapkitConfig } from './types';
+import { LRUCache } from './lru-cache';
+import type { CdnConfig } from './types';
 import { SnapkitUrlBuilder } from './url-builder';
 
 /**
  * Factory pattern for caching and reusing SnapkitUrlBuilder instances
  * Prevents creating new instances for the same configuration
+ * Uses LRU cache to limit memory usage
  */
 export class UrlBuilderFactory {
-  private static instances = new Map<string, SnapkitUrlBuilder>();
+  private static cache = new LRUCache<string, SnapkitUrlBuilder>(50);
+  private static queryParamsCache = new LRUCache<string, string>(200);
 
   /**
-   * Get or create a SnapkitUrlBuilder instance for the given configuration
-   * @param config - Snapkit configuration
+   * Get or create a SnapkitUrlBuilder instance for the given CDN configuration
+   * @param config - CDN configuration
    * @returns Cached or new SnapkitUrlBuilder instance
    */
-  static getInstance(config: SnapkitConfig): SnapkitUrlBuilder {
+  static getInstance(config: CdnConfig): SnapkitUrlBuilder {
     const key = this.createKey(config);
 
-    if (!this.instances.has(key)) {
-      // SnapkitUrlBuilder only accepts organizationName in constructor
-      // Quality and format are handled at the transform level
-      const builder = new SnapkitUrlBuilder(config.organizationName);
-      this.instances.set(key, builder);
+    let builder = this.cache.get(key);
+    if (!builder) {
+      builder = new SnapkitUrlBuilder(config);
+      this.cache.set(key, builder);
     }
 
-    return this.instances.get(key)!;
+    return builder;
   }
 
   /**
    * Clear all cached instances (useful for testing)
    */
   static clearCache(): void {
-    this.instances.clear();
+    this.cache.clear();
+    this.queryParamsCache.clear();
   }
 
   /**
    * Create a unique key for the configuration
-   * @param config - Snapkit configuration
+   * @param config - CDN configuration
    * @returns Unique key string
    */
-  private static createKey(config: SnapkitConfig): string {
-    // Since SnapkitUrlBuilder only uses organizationName,
-    // we only need organizationName in the cache key
-    return config.organizationName;
+  private static createKey(config: CdnConfig): string {
+    if (config.provider === 'snapkit') {
+      return `snapkit:${config.organizationName}`;
+    } else if (config.provider === 'custom') {
+      return `custom:${config.baseUrl}`;
+    }
+    throw new Error(`Unsupported CDN provider: ${config.provider}`);
   }
 
   /**
    * Get the number of cached instances (for debugging/monitoring)
    */
   static getCacheSize(): number {
-    return this.instances.size;
+    return this.cache.size;
+  }
+
+  /**
+   * Get cache statistics for monitoring and debugging
+   */
+  static getCacheStats(): {
+    builders: { size: number; maxSize: number; usage: number };
+    queryParams: { size: number; maxSize: number; usage: number };
+  } {
+    return {
+      builders: this.cache.getStats(),
+      queryParams: this.queryParamsCache.getStats(),
+    };
+  }
+
+  /**
+   * Cache query parameters for performance optimization
+   */
+  static getCachedQueryParams(key: string, generator: () => string): string {
+    let params = this.queryParamsCache.get(key);
+    if (!params) {
+      params = generator();
+      this.queryParamsCache.set(key, params);
+    }
+    return params;
   }
 }

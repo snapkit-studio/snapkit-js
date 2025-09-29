@@ -1,6 +1,8 @@
 // Type definitions
 export type { NetworkSpeed } from './responsive';
 export type {
+  CdnConfig,
+  CdnProvider,
   ImageTransforms,
   NextImageProps,
   PictureSource,
@@ -13,6 +15,17 @@ export type {
 // URL Builder
 export { SnapkitUrlBuilder } from './url-builder';
 export { UrlBuilderFactory } from './url-builder-factory';
+
+// Security Utilities
+export {
+  isValidUrl,
+  isValidPath,
+  sanitizePath,
+  createSecurityError,
+} from './security-utils';
+
+// Cache Utilities
+export { LRUCache } from './lru-cache';
 
 // Format Detection
 export {
@@ -64,10 +77,37 @@ export type {
 export {
   detectEnvironment,
   environmentStrategies,
-  getEnvConfig,
+  getCdnConfig,
   getEnvironmentDebugInfo,
-  mergeConfigWithEnv,
   universalStrategy,
-  validateEnvConfig,
 } from './env-config';
 export type { EnvironmentStrategy } from './env-config';
+
+// Browser Compatibility
+export {
+  checkAvifSupport,
+  checkWebpSupport,
+  getFormatSupportFromUA,
+  parseBrowserInfo,
+} from './browser-compatibility';
+export type { BrowserInfo, FormatSupport } from './browser-compatibility';
+
+// Utility Functions
+export {
+  calculateSizeReduction,
+  extractDimensionsFromUrl,
+  formatBytes,
+  isSnapkitUrl,
+} from './utils';
+
+// Constants
+export {
+  DEFAULT_IMAGE_QUALITY,
+  DEFAULT_SSR_VIEWPORT_HEIGHT,
+  DEFAULT_SSR_VIEWPORT_WIDTH,
+  MAX_IMAGE_HEIGHT,
+  MAX_IMAGE_WIDTH,
+  MIN_IMAGE_QUALITY,
+  MAX_IMAGE_QUALITY,
+  MOBILE_BREAKPOINT,
+} from './constants';

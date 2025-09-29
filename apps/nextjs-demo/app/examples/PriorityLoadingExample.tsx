@@ -34,7 +34,7 @@ export function PriorityLoadingExample() {
         <CodeBlock language="tsx">
           {`// Hero image - highest priority
 <Image
-  src="/hero-image.jpg"
+  src="/landing-page/fox.jpg"
   alt="Hero image"
   width={800}
   height={400}
@@ -64,26 +64,13 @@ export function PriorityLoadingExample() {
                 loading=&quot;eager&quot;
               </p>
             </div>
-            <div>
-              <Image
-                src="/landing-page/fox.jpg"
-                alt="Important image 2"
-                width={400}
-                height={300}
-                loading="eager"
-                className="w-full rounded border object-cover"
-              />
-              <p className="mt-2 text-sm text-gray-600">
-                loading=&quot;eager&quot;
-              </p>
-            </div>
           </div>
         </div>
 
         <CodeBlock language="tsx">
           {`// Above-the-fold images
 <Image
-  src="/important-image.jpg"
+  src="/landing-page/fox.jpg"
   alt="Important image"
   width={400}
   height={300}
@@ -117,7 +104,7 @@ export function PriorityLoadingExample() {
         <CodeBlock language="tsx">
           {`// Standard content images
 <Image
-  src="/content-image.jpg"
+  src="/landing-page/fox.jpg"
   alt="Standard image"
   width={300}
   height={200}
@@ -231,7 +218,6 @@ export function PriorityLoadingExample() {
                 alt="Desktop priority example"
                 width={600}
                 height={300}
-                // 실제로는 useMediaQuery 등을 사용
                 priority={true} // example: true only on desktop
                 className="w-full rounded border object-cover"
               />

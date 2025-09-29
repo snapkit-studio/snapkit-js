@@ -1,54 +1,72 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { ImageTransforms } from '../types';
+import type { CdnConfig, ImageTransforms } from '../types';
 import { SnapkitUrlBuilder } from '../url-builder';
 
 describe('SnapkitUrlBuilder Class', () => {
   let urlBuilder: SnapkitUrlBuilder;
+  let snapkitConfig: CdnConfig;
+  let customConfig: CdnConfig;
 
   beforeEach(() => {
-    urlBuilder = new SnapkitUrlBuilder('test-org');
+    snapkitConfig = {
+      provider: 'snapkit',
+      organizationName: 'test-org',
+    };
+    customConfig = {
+      provider: 'custom',
+      baseUrl: 'https://custom.domain.com',
+    };
+    urlBuilder = new SnapkitUrlBuilder(snapkitConfig);
   });
 
   describe('Constructor', () => {
-    it('should create instance with organization name', () => {
-      const builder = new SnapkitUrlBuilder('test-org');
+    it('should create instance with snapkit provider config', () => {
+      const builder = new SnapkitUrlBuilder(snapkitConfig);
 
       expect(builder).toBeInstanceOf(SnapkitUrlBuilder);
     });
 
-    it('should create instance with custom base URL', () => {
-      const builder = new SnapkitUrlBuilder('https://custom.domain.com');
+    it('should create instance with custom provider config', () => {
+      const builder = new SnapkitUrlBuilder(customConfig);
 
       expect(builder).toBeInstanceOf(SnapkitUrlBuilder);
     });
 
-    it('should generate correct base URL from organization name', () => {
-      const builder = new SnapkitUrlBuilder('test-org');
+    it('should generate correct base URL from snapkit organization name', () => {
+      const builder = new SnapkitUrlBuilder(snapkitConfig);
       const result = builder.buildImageUrl('test.jpg');
 
       expect(result).toBe('https://test-org-cdn.snapkit.studio/test.jpg');
     });
 
-    it('should use base URL when provided', () => {
-      const builder = new SnapkitUrlBuilder('https://custom.domain.com');
+    it('should use custom base URL when provided', () => {
+      const builder = new SnapkitUrlBuilder(customConfig);
       const result = builder.buildImageUrl('test.jpg');
 
       expect(result).toBe('https://custom.domain.com/test.jpg');
     });
 
-    it('should handle empty organization name', () => {
-      const builder = new SnapkitUrlBuilder('');
-      const result = builder.buildImageUrl('test.jpg');
+    it('should throw error for snapkit provider without organization name', () => {
+      const invalidConfig: CdnConfig = {
+        provider: 'snapkit',
+        // Missing organizationName
+      };
 
-      expect(result).toBe('https://-cdn.snapkit.studio/test.jpg');
+      expect(() => {
+        new SnapkitUrlBuilder(invalidConfig);
+      }).toThrow('organizationName is required when using snapkit provider');
     });
 
-    it('should handle undefined organization name', () => {
-      const builder = new SnapkitUrlBuilder(undefined as any);
-      const result = builder.buildImageUrl('test.jpg');
+    it('should throw error for custom provider without base URL', () => {
+      const invalidConfig: CdnConfig = {
+        provider: 'custom',
+        // Missing baseUrl
+      };
 
-      expect(result).toBe('https://-cdn.snapkit.studio/test.jpg');
+      expect(() => {
+        new SnapkitUrlBuilder(invalidConfig);
+      }).toThrow('baseUrl is required when using custom provider');
     });
   });
 
@@ -110,7 +128,10 @@ describe('SnapkitUrlBuilder Class', () => {
         width: 800,
         quality: 90,
       };
-      const result = urlBuilder.buildTransformedUrl('test.jpg?v=123', transforms);
+      const result = urlBuilder.buildTransformedUrl(
+        'test.jpg?v=123',
+        transforms,
+      );
 
       expect(result).toContain('test.jpg?v=123&');
       expect(result).toContain('w=800');

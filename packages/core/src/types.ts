@@ -85,9 +85,18 @@ export interface PictureSource {
   transforms?: ImageTransforms;
 }
 
+// CDN provider types
+export type CdnProvider = 'snapkit' | 'custom';
+
+export interface CdnConfig {
+  provider: CdnProvider;
+  organizationName?: string; // Required for snapkit provider
+  baseUrl?: string; // Required for custom provider
+}
+
 // Provider configuration
 export interface SnapkitConfig {
-  organizationName: string;
+  cdnConfig: CdnConfig;
   /**
    * Default image quality (1-100)
    * @default 85

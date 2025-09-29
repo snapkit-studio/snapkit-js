@@ -2,6 +2,7 @@ import {
   getBestSupportedFormat,
   ImageTransforms,
   SnapkitUrlBuilder,
+  CdnConfig,
 } from '@snapkit-studio/core';
 
 export interface CreateImageUrlOptions {
@@ -21,7 +22,17 @@ export function createImageUrl(
   src: string,
   options: CreateImageUrlOptions,
 ): string {
-  const urlBuilder = new SnapkitUrlBuilder(options.organizationName);
+  const cdnConfig: CdnConfig = options.baseUrl
+    ? {
+        provider: 'custom',
+        baseUrl: options.baseUrl,
+      }
+    : {
+        provider: 'snapkit',
+        organizationName: options.organizationName,
+      };
+
+  const urlBuilder = new SnapkitUrlBuilder(cdnConfig);
 
   // Determine optimal format
   const format =

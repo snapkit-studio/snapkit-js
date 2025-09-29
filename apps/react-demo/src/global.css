@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+@config "./tailwind.config.js";
+
+/* Shiki code highlighting custom styles */
+.shiki-container {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shiki {
+  overflow-x: auto;
+  padding: 1rem;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 0;
+  background-color: #0d1117 !important;
+  border: 1px solid #30363d;
+  border-radius: 0.5rem;
+}
+
+.shiki code {
+  font-family:
+    'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas',
+    'Courier New', monospace;
+  font-size: inherit;
+  line-height: inherit;
+  background: transparent;
+  padding: 0;
+}
+
+.shiki .line {
+  min-height: 1.4rem;
+  display: block;
+}
+
+/* Improved scrollbar for code blocks */
+.shiki::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.shiki::-webkit-scrollbar-track {
+  background: #21262d;
+  border-radius: 4px;
+}
+
+.shiki::-webkit-scrollbar-thumb {
+  background: #6e7681;
+  border-radius: 4px;
+}
+
+.shiki::-webkit-scrollbar-thumb:hover {
+  background: #8b949e;
+}
+
+/* Firefox scrollbar */
+.shiki {
+  scrollbar-width: thin;
+  scrollbar-color: #6e7681 #21262d;
+}
+
+/* Copy button container */
+.shiki-container {
+  position: relative;
+}
+
+/* Loading state animation */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

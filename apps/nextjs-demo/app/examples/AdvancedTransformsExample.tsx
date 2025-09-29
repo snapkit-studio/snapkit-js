@@ -40,8 +40,8 @@ export function AdvancedTransformsExample() {
                   alt={`Quality ${quality}%`}
                   width={200}
                   height={150}
+                  quality={quality}
                   className="w-full rounded border object-cover"
-                  transforms={{ quality }}
                 />
                 <p className="mt-1 text-xs text-gray-500">
                   {quality >= 85
@@ -57,10 +57,10 @@ export function AdvancedTransformsExample() {
 
         <CodeBlock language="tsx">
           {`// Optimizing for different quality tiers
-<Image transforms={{ quality: 100 }} /> // Highest quality
-<Image transforms={{ quality: 85 }} />  // Web standard
-<Image transforms={{ quality: 70 }} />  // Mobile standard
-<Image transforms={{ quality: 50 }} />  // Low-bandwidth networks`}
+<Image quality={100} /> // Highest quality
+<Image quality={85} />  // Web standard
+<Image quality={70} />  // Mobile standard
+<Image quality={50} />  // Low-bandwidth networks`}
         </CodeBlock>
 
         {/* Dynamic resizing */}
@@ -87,7 +87,6 @@ export function AdvancedTransformsExample() {
                   width={size.width}
                   height={size.height}
                   className="w-full rounded border object-cover"
-                  transforms={{ width: size.width, height: size.height }}
                 />
               </div>
             ))}
@@ -96,10 +95,10 @@ export function AdvancedTransformsExample() {
 
         <CodeBlock language="tsx">
           {`// Dynamic resizing
-<Image transforms={{ width: 800, height: 600 }} />  // High resolution
-<Image transforms={{ width: 400, height: 300 }} />  // Standard
-<Image transforms={{ width: 200, height: 150 }} />  // Mobile
-<Image transforms={{ width: 100, height: 100 }} />  // Thumbnail`}
+<Image width={800} height={600} />  // High resolution
+<Image width={400} height={300} />  // Standard
+<Image width={200} height={150} />  // Mobile
+<Image width={100} height={100} />  // Thumbnail`}
         </CodeBlock>
 
         {/* Composite filter combinations */}
@@ -118,10 +117,10 @@ export function AdvancedTransformsExample() {
                 width={250}
                 height={188}
                 className="w-full rounded border object-cover"
+                quality={70}
                 transforms={{
                   grayscale: true,
                   blur: 1,
-                  quality: 70,
                 }}
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -138,9 +137,9 @@ export function AdvancedTransformsExample() {
                 width={250}
                 height={188}
                 className="w-full rounded border object-cover"
+                quality={90}
                 transforms={{
                   blur: 3,
-                  quality: 90,
                 }}
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -375,6 +374,7 @@ const [transforms, setTransforms] = useState({
                     alt={`${style.name} style`}
                     width={150}
                     height={113}
+                    quality={style.transforms.quality}
                     className="w-full rounded object-cover"
                     transforms={style.transforms}
                   />
@@ -401,7 +401,7 @@ const artStyles = [
 {artStyles.map((style, index) => (
   <Image
     key={index}
-    src="/fox.jpg"
+    src="/landing-page/fox.jpg"
     alt={\`\${style.name} style\`}
     transforms={style.transforms}
   />

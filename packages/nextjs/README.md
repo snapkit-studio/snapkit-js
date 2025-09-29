@@ -9,9 +9,10 @@ Next.js image loader and React component for Snapkit image optimization service.
 ## Features
 
 - **Next.js Image Integration**: Seamless integration with Next.js Image component
+- **Flexible CDN Configuration**: Use Snapkit CDN or integrate with your existing infrastructure (CloudFront, GCS, Cloudflare)
 - **Automatic Optimization**: Dynamic image transformation with DPR-based srcset
 - **Client Component**: 현재 `Image` 컴포넌트는 클라이언트 전용이며 `'use client'` 지시자가 필요합니다.
-- **Flexible Configuration**: Global and per-component configuration options
+- **Environment Auto-Detection**: Automatically reads framework-specific environment variables
 - **Format Auto-Selection**: Intelligent format selection (WebP, AVIF, etc.)
 - **Client-First Enhancements**: Built-in network adaptation and event handler support
 - **TypeScript Support**: Full TypeScript definitions included
@@ -29,13 +30,32 @@ pnpm add @snapkit-studio/nextjs
 
 ## Quick Start
 
-### 1. Environment Configuration
+### 1. CDN Configuration
+
+Choose between Snapkit CDN for zero-config optimization or custom CDN integration:
+
+#### Option A: Snapkit CDN (Recommended)
 
 ```bash
-# .env.local (Required and Optional variables)
-NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
-NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (default: 85)
-NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (default: auto)
+# .env.local - Snapkit CDN
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=snapkit
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION=your-organization-name
+```
+
+#### Option B: Custom CDN Integration
+
+```bash
+# .env.local - Custom CDN (CloudFront example)
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
+NEXT_PUBLIC_IMAGE_CDN_URL=https://d1234567890.cloudfront.net
+
+# Google Cloud Storage example
+# NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
+# NEXT_PUBLIC_IMAGE_CDN_URL=https://storage.googleapis.com/my-bucket
+
+# Cloudflare or any custom domain
+# NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
+# NEXT_PUBLIC_IMAGE_CDN_URL=https://images.example.com
 ```
 
 ### 2. Use with Next.js Image Component
@@ -53,9 +73,9 @@ export function Hero() {
       width={1200}
       height={600}
       alt="Hero image"
+      quality={85}
       transforms={{
         format: 'auto',
-        quality: 85,
       }}
     />
   );
@@ -64,26 +84,33 @@ export function Hero() {
 
 ## Usage Patterns
 
-### Pattern 1: Environment Variables (Recommended)
+### Pattern 1: CDN Configuration (Recommended)
 
-Best for most applications where you want consistent optimization across all images.
+Configure your CDN provider through environment variables for consistent optimization across all images.
+
+#### Snapkit CDN
 
 ```bash
-# .env.local - All available environment variables
-NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
-NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (1-100, default: 85)
-NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (auto|avif|webp|off, default: auto)
+# .env.local - Snapkit CDN configuration
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=snapkit
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION=your-organization-name
+```
+
+#### Custom CDN
+
+```bash
+# .env.local - Custom CDN configuration
+NEXT_PUBLIC_IMAGE_CDN_PROVIDER=custom
+NEXT_PUBLIC_IMAGE_CDN_URL=https://your-cdn-domain.com
 ```
 
 **Environment Variables Reference:**
 
-- `NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME`: Your Snapkit organization identifier (required)
-- `NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY`: Global quality setting for all images (1-100)
-- `NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT`: Default format optimization strategy
-  - `auto`: Automatically select best format based on browser support
-  - `avif`: Use AVIF format if supported
-  - `webp`: Use WebP format if supported
-  - `off`: Disable format optimization
+- `NEXT_PUBLIC_IMAGE_CDN_PROVIDER`: CDN provider type (`snapkit` or `custom`)
+- `NEXT_PUBLIC_SNAPKIT_ORGANIZATION`: Your Snapkit organization identifier (required for Snapkit CDN)
+- `NEXT_PUBLIC_IMAGE_CDN_URL`: Your custom CDN base URL (required for custom CDN)
+
+The configuration is automatically detected by the library using `getCdnConfig()` from `@snapkit-studio/core`.
 
 ```typescript
 'use client';
@@ -103,19 +130,29 @@ import { Image } from '@snapkit-studio/nextjs';
 />
 ```
 
-### Pattern 2: Direct Props (Advanced)
+### Pattern 2: Manual CDN Override (Advanced)
 
-Use when you need different optimization settings per image instance.
+Use when you need different CDN settings per image instance.
 
 ```typescript
 import { Image } from '@snapkit-studio/nextjs';
+import { SnapkitImageEngine } from '@snapkit-studio/core';
+
+// Create custom engine with different CDN
+const customEngine = new SnapkitImageEngine({
+  cdnConfig: {
+    provider: 'custom',
+    baseUrl: 'https://different-cdn.example.com'
+  },
+  defaultQuality: 90,
+  defaultFormat: 'auto'
+});
 
 <Image
   src="/high-quality-photo.jpg"
   width={1920}
   height={1080}
   alt="High quality photo"
-  organizationName="custom-org"
   transforms={{
     format: 'avif',
     quality: 90,
@@ -258,9 +295,9 @@ export function Gallery({ images }: { images: string[] }) {
   width={600}
   height={800}
   alt="Portrait"
+  quality={85}
   transforms={{
     format: 'webp',
-    quality: 85,
     blur: 2,                    // Slight blur effect
   }}
 />
@@ -274,8 +311,13 @@ export function Gallery({ images }: { images: string[] }) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Allow Snapkit domains
-    domains: ['your-org-name.snapkit.studio'],
+    // Allow Snapkit and custom CDN domains
+    domains: [
+      'your-org-name-cdn.snapkit.studio',  // Snapkit CDN
+      'd1234567890.cloudfront.net',        // AWS CloudFront
+      'storage.googleapis.com',            // Google Cloud Storage
+      'images.example.com',                // Custom domain
+    ],
 
     // Use custom loader globally (optional)
     loader: 'custom',
@@ -311,7 +353,11 @@ Explore features including:
 
 ## Migration Guide
 
-### From Next.js Built-in Optimization
+**📖 [Complete Migration Guide](../../docs/MIGRATION-FROM-NEXTJS.md)** - Comprehensive step-by-step guide with troubleshooting
+
+### Quick Migration Examples
+
+#### From Next.js Built-in Image
 
 ```typescript
 // Before: Next.js built-in
@@ -325,6 +371,7 @@ import Image from 'next/image';
 />
 
 // After: Snapkit optimization with Snapkit Image
+'use client';
 import { Image } from '@snapkit-studio/nextjs';
 
 <Image
@@ -332,11 +379,12 @@ import { Image } from '@snapkit-studio/nextjs';
   width={800}
   height={600}
   alt="Image"
-  transforms={{ format: 'webp', quality: 85 }}
+  quality={85}
+  transforms={{ format: 'auto' }}
 />
 ```
 
-### From Other Image Services
+#### From Other Image Services
 
 ```typescript
 // Before: Cloudinary
@@ -349,13 +397,15 @@ import Image from 'next/image';
 />
 
 // After: Snapkit with Snapkit Image
+'use client';
 import { Image } from '@snapkit-studio/nextjs';
 
 <Image
   src="/sample.jpg"
   width={800}
   height={600}
-  transforms={{ width: 800, quality: 85 }}
+  quality={85}
+  transforms={{ format: 'auto' }}
 />
 ```
 
@@ -415,6 +465,17 @@ Coverage reports are generated in multiple formats:
 ### Test Environment
 
 Tests run in a jsdom environment to simulate browser behavior for React Server Components and Client Components testing.
+
+## Browser Support
+
+- **AVIF**: Chrome 85+, Firefox 93+, Edge 91+ (Chromium), Safari 16+
+- **WebP**: Chrome 23+, Firefox 65+, Edge 79+ (Chromium), Safari 14+
+- **Lazy Loading**: Chrome 76+, Firefox 75+, Edge 79+, Safari 15.4+
+- **Intersection Observer**: Chrome 58+, Firefox 55+, Edge 79+, Safari 12.1+
+
+**Note**: Only Chromium-based Edge (79+) is supported. Legacy EdgeHTML Edge (18 and below) is not supported.
+
+**Format Selection**: Automatically selects the best supported format in order: AVIF → WebP → JPEG. Falls back to JPEG in browsers that don't support modern formats.
 
 ## Contributing
 
