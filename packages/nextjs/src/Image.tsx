@@ -1,13 +1,15 @@
 'use client';
 
-import { ImageTransforms, SnapkitUrlBuilder } from '@snapkit-studio/core';
+import {
+  getCdnConfig,
+  ImageTransforms,
+  SnapkitImageEngine,
+} from '@snapkit-studio/core';
 import NextImage, { ImageLoader } from 'next/image';
 import { useMemo } from 'react';
 
-import { createSnapkitLoader } from './image-loader';
 import type { SnapkitImageProps } from './types';
 import { calculateEnhancedStyle } from './utils';
-import { parseEnvConfig } from './utils/env-config';
 
 /**
  * Creates a custom loader that applies transforms and network-based quality adjustment
@@ -16,26 +18,25 @@ import { parseEnvConfig } from './utils/env-config';
 function createTransformLoader(
   transforms: ImageTransforms | undefined,
 ): ImageLoader {
-  const envConfig = parseEnvConfig();
-
-  console.log('envConfig', envConfig);
-  const urlBuilder = new SnapkitUrlBuilder(envConfig.organizationName);
-  const baseLoader = createSnapkitLoader();
+  // Use the unified image engine for consistent behavior
+  const cdnConfig = getCdnConfig();
+  const imageEngine = new SnapkitImageEngine({
+    cdnConfig,
+    defaultQuality: 85,
+    defaultFormat: 'auto',
+  });
 
   return ({ src, width, quality }) => {
-    console.log('src', src);
-    console.log('width', width);
-    console.log('quality', quality);
-
-    // Apply transforms if provided
-    const processedSrc = urlBuilder.buildTransformedUrl(src, transforms || {});
-
-    // Apply optimization with network-based quality adjustment
-    return baseLoader({
-      src: processedSrc,
+    // Generate image data with transforms applied
+    const imageData = imageEngine.generateImageData({
+      src,
       width,
       quality,
+      transforms,
+      adjustQualityByNetwork: true,
     });
+
+    return imageData.url;
   };
 }
 
@@ -80,7 +81,6 @@ export function Image({
     [numWidth, numHeight, style],
   );
 
-  console.log('isUrlImageSource', isUrlImageSource);
   if (!isUrlImageSource) {
     // For static imports, use Next.js Image without Snapkit optimization
     return (

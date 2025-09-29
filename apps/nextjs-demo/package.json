@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@repo/demo-components": "workspace:*",
+    "@snapkit-studio/core": "workspace:*",
     "@snapkit-studio/nextjs": "workspace:*",
     "@snapkit-studio/react": "workspace:*",
     "@tailwindcss/postcss": "^4.1.13",

@@ -32,7 +32,7 @@ describe('DPR Detection', () => {
 
   describe('getDevicePixelRatio', () => {
     it('should return 1 in SSR/Node.js environment', () => {
-      // @ts-ignore
+      // @ts-expect-error - Intentionally deleting global.window for SSR testing
       delete global.window;
       expect(getDevicePixelRatio()).toBe(1);
     });
@@ -115,7 +115,7 @@ describe('DPR Detection', () => {
 
   describe('supportsHighEfficiencyFormats', () => {
     it('should return default values in SSR environment', () => {
-      // @ts-ignore
+      // @ts-expect-error - Intentionally deleting global.window for SSR testing
       delete global.window;
       const result = supportsHighEfficiencyFormats();
       expect(result).toEqual({ avif: false, webp: true });
@@ -145,7 +145,7 @@ describe('DPR Detection', () => {
 
   describe('getNetworkAwareDprLimit', () => {
     it('should return 3 in SSR environment', () => {
-      // @ts-ignore
+      // @ts-expect-error - Intentionally deleting global.window for SSR testing
       delete global.window;
       expect(getNetworkAwareDprLimit()).toBe(3);
     });

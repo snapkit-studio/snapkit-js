@@ -401,7 +401,7 @@ const artStyles = [
 {artStyles.map((style, index) => (
   <Image
     key={index}
-    src="/fox.jpg"
+    src="/landing-page/fox.jpg"
     alt={\`\${style.name} style\`}
     transforms={style.transforms}
   />

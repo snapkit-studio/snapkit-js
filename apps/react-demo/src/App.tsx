@@ -11,7 +11,16 @@ import {
 } from '@snapkit-studio/react';
 import { useEffect, useState } from 'react';
 
+import { CdnConfigurationExample } from './components/CdnConfigurationExample';
+
 const navigation: NavGroup[] = [
+  {
+    title: 'Configuration',
+    items: [
+      { id: 'cdn-config', title: 'CDN Configuration', href: '#cdn-config' },
+    ],
+    defaultOpen: true,
+  },
   {
     title: 'Basic Features',
     items: [
@@ -352,6 +361,12 @@ function App() {
       description="Explore the various features and use cases of Snapkit's React Image component. Each example shows the component in action alongside its implementation code."
       navigation={navigation}
     >
+      {/* Configuration Section */}
+      <section className="space-y-8">
+        <h2 className="text-3xl font-bold text-gray-900">Configuration</h2>
+        <CdnConfigurationExample />
+      </section>
+
       {/* Basic Features Section */}
       <section className="space-y-8">
         <h2 className="text-3xl font-bold text-gray-900">Basic Features</h2>

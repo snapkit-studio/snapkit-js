@@ -26,7 +26,7 @@ export function ResponsiveImagesExample() {
 
         <CodeBlock language="tsx">
           {`<Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   alt="Responsive image"
   width={800}
   height={600}
@@ -197,7 +197,7 @@ export function ResponsiveImagesExample() {
           {`// Different aspect ratios per screen (art direction)
 <div className="w-full aspect-video lg:aspect-[16/9] md:aspect-square sm:aspect-[3/4]">
   <Image
-    src="/fox.jpg"
+    src="/landing-page/fox.jpg"
     alt="All screen responsive"
     fill
     className="object-cover"
@@ -207,7 +207,7 @@ export function ResponsiveImagesExample() {
 
 // Or use different image sizes per screen type
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   width={800}
   height={450}
   className="hidden lg:block" // desktop only
@@ -215,7 +215,7 @@ export function ResponsiveImagesExample() {
 />
 
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   width={600}
   height={600}
   className="hidden md:block lg:hidden" // tablet only

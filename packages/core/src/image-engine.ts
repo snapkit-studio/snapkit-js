@@ -1,3 +1,9 @@
+import {
+  DEFAULT_FILL_WIDTH,
+  MAX_IMAGE_QUALITY,
+  MAX_IMAGE_WIDTH,
+  MIN_IMAGE_QUALITY,
+} from './constants';
 import { DprDetectionOptions, getOptimalDprValues } from './dpr-detection';
 import {
   adjustQualityForConnection,
@@ -6,6 +12,7 @@ import {
 } from './responsive';
 import { ImageTransforms, SnapkitConfig } from './types';
 import { SnapkitUrlBuilder } from './url-builder';
+import { UrlBuilderFactory } from './url-builder-factory';
 
 /**
  * All data required for image rendering
@@ -61,24 +68,40 @@ export class SnapkitImageEngine {
   constructor(config: SnapkitConfig) {
     this.validateConfig(config);
     this.config = config;
-    this.urlBuilder = new SnapkitUrlBuilder(config.organizationName);
+    this.urlBuilder = UrlBuilderFactory.getInstance(config.cdnConfig);
   }
 
   /**
    * Validate configuration
    */
   private validateConfig(config: SnapkitConfig): void {
-    if (!config.organizationName) {
-      throw new Error('organizationName is required in SnapkitConfig');
+    if (!config.cdnConfig) {
+      throw new Error('cdnConfig is required in SnapkitConfig');
+    }
+
+    // Validate CDN config
+    if (
+      config.cdnConfig.provider === 'snapkit' &&
+      !config.cdnConfig.organizationName
+    ) {
+      throw new Error(
+        'organizationName is required when using snapkit provider',
+      );
+    }
+
+    if (config.cdnConfig.provider === 'custom' && !config.cdnConfig.baseUrl) {
+      throw new Error('baseUrl is required when using custom provider');
     }
 
     if (config.defaultQuality !== undefined) {
       if (
         typeof config.defaultQuality !== 'number' ||
-        config.defaultQuality < 1 ||
-        config.defaultQuality > 100
+        config.defaultQuality < MIN_IMAGE_QUALITY ||
+        config.defaultQuality > MAX_IMAGE_QUALITY
       ) {
-        throw new Error('defaultQuality must be a number between 1 and 100');
+        throw new Error(
+          `defaultQuality must be a number between ${MIN_IMAGE_QUALITY} and ${MAX_IMAGE_QUALITY}`,
+        );
       }
     }
 
@@ -127,11 +150,13 @@ export class SnapkitImageEngine {
     if (params.quality !== undefined) {
       if (
         typeof params.quality !== 'number' ||
-        params.quality < 1 ||
-        params.quality > 100 ||
+        params.quality < MIN_IMAGE_QUALITY ||
+        params.quality > MAX_IMAGE_QUALITY ||
         !isFinite(params.quality)
       ) {
-        errors.push('quality must be a number between 1 and 100');
+        errors.push(
+          `quality must be a number between ${MIN_IMAGE_QUALITY} and ${MAX_IMAGE_QUALITY}`,
+        );
       }
     }
 
@@ -150,7 +175,7 @@ export class SnapkitImageEngine {
   } {
     if (params.fill) {
       return {
-        width: 1920, // Default responsive width for fill mode
+        width: DEFAULT_FILL_WIDTH, // Default responsive width for fill mode
         height: undefined,
       };
     }
@@ -206,7 +231,7 @@ export class SnapkitImageEngine {
           generateResponsiveWidths(size, {
             multipliers: [1, 1.5, 2], // DPR variations
             minWidth: 200,
-            maxWidth: 3840,
+            maxWidth: MAX_IMAGE_WIDTH,
           }),
         );
 

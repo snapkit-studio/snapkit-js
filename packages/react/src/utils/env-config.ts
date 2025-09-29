@@ -6,10 +6,28 @@
  * The actual implementation is now centralized in @snapkit-studio/core.
  */
 export {
-  mergeConfigWithEnv,
-  getEnvConfig,
-  validateEnvConfig,
   detectEnvironment,
   getEnvironmentDebugInfo,
   universalStrategy,
 } from '@snapkit-studio/core';
+
+import {
+  getCdnConfig,
+  SnapkitConfig,
+} from '@snapkit-studio/core';
+
+/**
+ * Legacy function for backward compatibility
+ * Now uses the new CDN configuration system
+ */
+export function mergeConfigWithEnv(
+  propsConfig: Partial<SnapkitConfig>,
+): SnapkitConfig {
+  const cdnConfig = getCdnConfig();
+
+  return {
+    cdnConfig,
+    defaultQuality: propsConfig.defaultQuality || 85,
+    defaultFormat: propsConfig.defaultFormat || 'auto',
+  };
+}

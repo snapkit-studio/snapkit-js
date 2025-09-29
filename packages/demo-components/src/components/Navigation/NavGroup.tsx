@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { clsx } from 'clsx';
+import { useState } from 'react';
 
 import type { NavGroup as NavGroupType } from '../../types';
 

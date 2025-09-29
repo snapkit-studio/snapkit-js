@@ -1,21 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
 import {
   DprDetectionOptions,
+  getCdnConfig,
   ImageEngineCache,
   ImageEngineParams,
   ImageRenderData,
   SnapkitConfig,
+  SnapkitImageEngine,
 } from '@snapkit-studio/core';
-
-import { mergeConfigWithEnv } from '../utils/env-config';
+import { useEffect, useMemo, useRef } from 'react';
 
 interface UseUnifiedImageEngineProps extends Omit<ImageEngineParams, 'src'> {
   src: string;
   // React-specific options
-  organizationName?: string;
-  baseUrl?: string;
   defaultQuality?: number;
   defaultFormat?: 'jpeg' | 'jpg' | 'png' | 'webp' | 'avif' | 'auto';
 }
@@ -63,33 +61,23 @@ export function useUnifiedImageEngine(
 ): ImageRenderData {
   // Track hydration state to ensure consistent DPR detection
   const hasHydrated = useHydrationState();
-  // Merge environment config with props
-  const config = useMemo((): SnapkitConfig => {
-    try {
-      return mergeConfigWithEnv({
-        organizationName: props.organizationName,
-        defaultQuality: props.defaultQuality,
-        defaultFormat: props.defaultFormat,
-      });
-    } catch (error) {
-      throw new Error(
-        'Failed to merge configuration with environment: ' +
-          (error instanceof Error ? error.message : String(error)),
-      );
-    }
-  }, [props.organizationName, props.defaultQuality, props.defaultFormat]);
-
-  // Get cached image engine instance to prevent recreation
+  // Create image engine with CDN configuration
   const imageEngine = useMemo(() => {
     try {
-      return ImageEngineCache.getInstance(config);
+      const cdnConfig = getCdnConfig();
+      const config: SnapkitConfig = {
+        cdnConfig,
+        defaultQuality: props.defaultQuality || 85,
+        defaultFormat: props.defaultFormat || 'auto',
+      };
+      return new SnapkitImageEngine(config);
     } catch (error) {
       throw new Error(
         'Failed to create Snapkit image engine: ' +
           (error instanceof Error ? error.message : String(error)),
       );
     }
-  }, [config]);
+  }, [props.defaultQuality, props.defaultFormat]);
 
   // Generate image data using the unified engine
   const imageData = useMemo((): ImageRenderData => {

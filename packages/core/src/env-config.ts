@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable turbo/no-undeclared-env-vars */
-import { SnapkitConfig, SnapkitEnvConfig } from './types';
+import { CdnConfig, CdnProvider } from './types';
 
 /**
  * Environment configuration strategy for different React environments
@@ -22,22 +22,21 @@ export const environmentStrategies: EnvironmentStrategy[] = [
   {
     name: 'vite',
     getEnvVar: (name: string) => {
-      // Vite uses import.meta.env with explicit references for build-time replacement
       // @ts-expect-error import.meta is not available in Node.js
       if (typeof import.meta === 'undefined' || !import.meta.env) {
         return undefined;
       }
 
       switch (name) {
-        case 'SNAPKIT_ORGANIZATION_NAME':
+        case 'IMAGE_CDN_PROVIDER':
           // @ts-expect-error
-          return import.meta.env.VITE_SNAPKIT_ORGANIZATION_NAME;
-        case 'SNAPKIT_DEFAULT_QUALITY':
+          return import.meta.env.VITE_IMAGE_CDN_PROVIDER;
+        case 'IMAGE_CDN_URL':
           // @ts-expect-error
-          return import.meta.env.VITE_SNAPKIT_DEFAULT_QUALITY;
-        case 'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT':
+          return import.meta.env.VITE_IMAGE_CDN_URL;
+        case 'SNAPKIT_ORGANIZATION':
           // @ts-expect-error
-          return import.meta.env.VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT;
+          return import.meta.env.VITE_SNAPKIT_ORGANIZATION;
         default:
           return undefined;
       }
@@ -54,14 +53,13 @@ export const environmentStrategies: EnvironmentStrategy[] = [
   {
     name: 'cra',
     getEnvVar: (name: string) => {
-      // CRA requires explicit environment variable references for build-time replacement
       switch (name) {
-        case 'SNAPKIT_ORGANIZATION_NAME':
-          return process.env.REACT_APP_SNAPKIT_ORGANIZATION_NAME;
-        case 'SNAPKIT_DEFAULT_QUALITY':
-          return process.env.REACT_APP_SNAPKIT_DEFAULT_QUALITY;
-        case 'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT':
-          return process.env.REACT_APP_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT;
+        case 'IMAGE_CDN_PROVIDER':
+          return process.env.REACT_APP_IMAGE_CDN_PROVIDER;
+        case 'IMAGE_CDN_URL':
+          return process.env.REACT_APP_IMAGE_CDN_URL;
+        case 'SNAPKIT_ORGANIZATION':
+          return process.env.REACT_APP_SNAPKIT_ORGANIZATION;
         default:
           return undefined;
       }
@@ -69,18 +67,17 @@ export const environmentStrategies: EnvironmentStrategy[] = [
     detect: () =>
       typeof process !== 'undefined' && !!process.env.REACT_APP_VERSION,
   },
-  // Next.js environment (both local and Vercel)
+  // Next.js environment
   {
     name: 'nextjs',
     getEnvVar: (name: string) => {
-      // Next.js requires explicit environment variable references for build-time replacement
       switch (name) {
-        case 'SNAPKIT_ORGANIZATION_NAME':
-          return process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME;
-        case 'SNAPKIT_DEFAULT_QUALITY':
-          return process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY;
-        case 'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT':
-          return process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT;
+        case 'IMAGE_CDN_PROVIDER':
+          return process.env.NEXT_PUBLIC_IMAGE_CDN_PROVIDER;
+        case 'IMAGE_CDN_URL':
+          return process.env.NEXT_PUBLIC_IMAGE_CDN_URL;
+        case 'SNAPKIT_ORGANIZATION':
+          return process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION;
         default:
           return undefined;
       }
@@ -93,14 +90,13 @@ export const environmentStrategies: EnvironmentStrategy[] = [
   {
     name: 'nodejs',
     getEnvVar: (name: string) => {
-      // Node.js can use direct environment variable access
       switch (name) {
-        case 'SNAPKIT_ORGANIZATION_NAME':
-          return process.env.SNAPKIT_ORGANIZATION_NAME;
-        case 'SNAPKIT_DEFAULT_QUALITY':
-          return process.env.SNAPKIT_DEFAULT_QUALITY;
-        case 'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT':
-          return process.env.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT;
+        case 'IMAGE_CDN_PROVIDER':
+          return process.env.IMAGE_CDN_PROVIDER;
+        case 'IMAGE_CDN_URL':
+          return process.env.IMAGE_CDN_URL;
+        case 'SNAPKIT_ORGANIZATION':
+          return process.env.SNAPKIT_ORGANIZATION;
         default:
           return undefined;
       }
@@ -115,56 +111,49 @@ export const environmentStrategies: EnvironmentStrategy[] = [
 export const universalStrategy: EnvironmentStrategy = {
   name: 'universal',
   getEnvVar: (name: string) => {
-    // Try Vite first (import.meta.env)
+    // Try Vite first
     // @ts-expect-error import.meta is not available in Node.js
     if (typeof import.meta !== 'undefined' && import.meta.env) {
-      if (name === 'SNAPKIT_ORGANIZATION_NAME') {
+      if (name === 'IMAGE_CDN_PROVIDER') {
         // @ts-expect-error
-        return import.meta.env.VITE_SNAPKIT_ORGANIZATION_NAME;
+        return import.meta.env.VITE_IMAGE_CDN_PROVIDER;
       }
-      if (name === 'SNAPKIT_DEFAULT_QUALITY') {
+      if (name === 'IMAGE_CDN_URL') {
         // @ts-expect-error
-        return import.meta.env.VITE_SNAPKIT_DEFAULT_QUALITY;
+        return import.meta.env.VITE_IMAGE_CDN_URL;
       }
-      if (name === 'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT') {
+      if (name === 'SNAPKIT_ORGANIZATION') {
         // @ts-expect-error
-        return import.meta.env.VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT;
+        return import.meta.env.VITE_SNAPKIT_ORGANIZATION;
       }
     }
 
-    // Fall back to process.env for other environments
+    // Fall back to process.env
     if (typeof process === 'undefined') return undefined;
 
-    // Try each prefix in order
-    // For Next.js and CRA, we need explicit references for build-time replacement
-    if (name === 'SNAPKIT_ORGANIZATION_NAME') {
+    if (name === 'IMAGE_CDN_PROVIDER') {
       return (
-        process.env.REACT_APP_SNAPKIT_ORGANIZATION_NAME ||
-        process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME ||
-        process.env.SNAPKIT_ORGANIZATION_NAME
+        process.env.REACT_APP_IMAGE_CDN_PROVIDER ||
+        process.env.NEXT_PUBLIC_IMAGE_CDN_PROVIDER ||
+        process.env.IMAGE_CDN_PROVIDER
       );
     }
-    if (name === 'SNAPKIT_DEFAULT_QUALITY') {
+    if (name === 'IMAGE_CDN_URL') {
       return (
-        process.env.REACT_APP_SNAPKIT_DEFAULT_QUALITY ||
-        process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY ||
-        process.env.SNAPKIT_DEFAULT_QUALITY
+        process.env.REACT_APP_IMAGE_CDN_URL ||
+        process.env.NEXT_PUBLIC_IMAGE_CDN_URL ||
+        process.env.IMAGE_CDN_URL
       );
     }
-    if (name === 'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT') {
+    if (name === 'SNAPKIT_ORGANIZATION') {
       return (
-        process.env.REACT_APP_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT ||
-        process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT ||
-        process.env.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT
+        process.env.REACT_APP_SNAPKIT_ORGANIZATION ||
+        process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION ||
+        process.env.SNAPKIT_ORGANIZATION
       );
     }
 
-    // Fallback for any other variables
-    return (
-      process.env[`REACT_APP_${name}`] ||
-      process.env[`NEXT_PUBLIC_${name}`] ||
-      process.env[name]
-    );
+    return undefined;
   },
   detect: () => {
     // @ts-expect-error import.meta is not available in Node.js
@@ -174,28 +163,45 @@ export const universalStrategy: EnvironmentStrategy = {
 };
 
 /**
- * Get environment configuration using a specific strategy
+ * Get CDN configuration from environment variables
  */
-export function getEnvConfig(
+export function getCdnConfig(
   strategy: EnvironmentStrategy = universalStrategy,
-): SnapkitEnvConfig {
+): CdnConfig {
   if (!strategy.detect()) {
-    return {};
+    throw new Error('Environment detection failed');
   }
 
-  const getEnvVarAsNumber = (name: string): number | undefined => {
-    const value = strategy.getEnvVar(name);
-    const parsed = value ? parseInt(value, 10) : undefined;
-    return parsed && !isNaN(parsed) ? parsed : undefined;
-  };
+  const provider = (strategy.getEnvVar('IMAGE_CDN_PROVIDER') ||
+    'snapkit') as CdnProvider;
 
-  return {
-    SNAPKIT_ORGANIZATION_NAME: strategy.getEnvVar('SNAPKIT_ORGANIZATION_NAME'),
-    SNAPKIT_DEFAULT_QUALITY: getEnvVarAsNumber('SNAPKIT_DEFAULT_QUALITY'),
-    SNAPKIT_DEFAULT_OPTIMIZE_FORMAT: strategy.getEnvVar(
-      'SNAPKIT_DEFAULT_OPTIMIZE_FORMAT',
-    ) as 'auto' | 'avif' | 'webp' | undefined,
-  };
+  if (provider === 'snapkit') {
+    const organizationName = strategy.getEnvVar('SNAPKIT_ORGANIZATION');
+    if (!organizationName) {
+      throw new Error(
+        'SNAPKIT_ORGANIZATION is required when IMAGE_CDN_PROVIDER is "snapkit"',
+      );
+    }
+    return {
+      provider: 'snapkit',
+      organizationName,
+    };
+  }
+
+  if (provider === 'custom') {
+    const baseUrl = strategy.getEnvVar('IMAGE_CDN_URL');
+    if (!baseUrl) {
+      throw new Error(
+        'IMAGE_CDN_URL is required when IMAGE_CDN_PROVIDER is "custom"',
+      );
+    }
+    return {
+      provider: 'custom',
+      baseUrl,
+    };
+  }
+
+  throw new Error(`Unsupported CDN provider: ${provider}`);
 }
 
 /**
@@ -211,123 +217,6 @@ export function detectEnvironment(): EnvironmentStrategy {
 }
 
 /**
- * Get framework-specific environment variable name
- */
-function getFrameworkEnvVarName(baseName: string, strategy?: EnvironmentStrategy): string {
-  const currentStrategy = strategy || detectEnvironment();
-
-  switch (currentStrategy.name) {
-    case 'vite':
-      return `VITE_${baseName}`;
-    case 'cra':
-      return `REACT_APP_${baseName}`;
-    case 'nextjs':
-      return `NEXT_PUBLIC_${baseName}`;
-    default:
-      return baseName;
-  }
-}
-
-/**
- * Validate environment configuration
- */
-export function validateEnvConfig(
-  envConfig: SnapkitEnvConfig = getEnvConfig(),
-  strict: boolean = false,
-  strategy?: EnvironmentStrategy,
-): {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-} {
-  const errors: string[] = [];
-  const warnings: string[] = [];
-
-  // Organization name validation with framework-specific message
-  if (!envConfig.SNAPKIT_ORGANIZATION_NAME) {
-    const envVarName = getFrameworkEnvVarName('SNAPKIT_ORGANIZATION_NAME', strategy);
-    const message = `${envVarName} is not set. Image optimization requires this environment variable.`;
-
-    if (strict) {
-      errors.push(message);
-    } else {
-      warnings.push(message);
-    }
-  }
-
-  // Quality validation with framework-specific message
-  if (envConfig.SNAPKIT_DEFAULT_QUALITY !== undefined) {
-    const quality = envConfig.SNAPKIT_DEFAULT_QUALITY;
-    if (isNaN(quality) || quality < 1 || quality > 100) {
-      const envVarName = getFrameworkEnvVarName('SNAPKIT_DEFAULT_QUALITY', strategy);
-      errors.push(`${envVarName} must be a number between 1 and 100`);
-    }
-  }
-
-  // Format validation with framework-specific message
-  if (envConfig.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT) {
-    const validFormats = ['avif', 'webp', 'auto', 'off'];
-    if (!validFormats.includes(envConfig.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT)) {
-      const envVarName = getFrameworkEnvVarName('SNAPKIT_DEFAULT_OPTIMIZE_FORMAT', strategy);
-      errors.push(
-        `${envVarName} must be one of: ${validFormats.join(', ')}`,
-      );
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-    warnings,
-  };
-}
-
-/**
- * Merge environment variables and props to return final configuration
- * Props take priority over environment variables
- */
-export function mergeConfigWithEnv(
-  propsConfig: Partial<SnapkitConfig>,
-  strategy: EnvironmentStrategy = universalStrategy,
-  strict: boolean = false,
-): SnapkitConfig {
-  const envConfig = getEnvConfig(strategy);
-
-  // Validate environment config if strict mode is enabled
-  if (strict) {
-    const { isValid, errors, warnings } = validateEnvConfig(envConfig, strict, strategy);
-
-    if (warnings.length > 0) {
-      console.warn(`Environment warnings:\n  ${warnings.join('\n  ')}`);
-    }
-
-    if (!isValid) {
-      throw new Error(`Invalid environment variables:\n  ${errors.join('\n  ')}`);
-    }
-  }
-
-  const organizationName =
-    propsConfig.organizationName ?? envConfig.SNAPKIT_ORGANIZATION_NAME;
-
-  if (typeof organizationName === 'undefined') {
-    const envVarName = getFrameworkEnvVarName('SNAPKIT_ORGANIZATION_NAME', strategy);
-    throw new Error(
-      `${envVarName} is not set. Image optimization requires this environment variable.`,
-    );
-  }
-
-  return {
-    organizationName,
-    defaultQuality:
-      propsConfig.defaultQuality ?? envConfig.SNAPKIT_DEFAULT_QUALITY ?? 85,
-    defaultFormat:
-      propsConfig.defaultFormat ??
-      envConfig.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT ??
-      'auto',
-  };
-}
-
-/**
  * Get environment debug information
  */
 export function getEnvironmentDebugInfo(): {
@@ -336,15 +225,13 @@ export function getEnvironmentDebugInfo(): {
   allStrategies: Array<{ name: string; detected: boolean }>;
 } {
   const detectedStrategy = detectEnvironment();
-  const envConfig = getEnvConfig(detectedStrategy);
 
   return {
     detectedStrategy: detectedStrategy.name,
     availableVars: {
-      SNAPKIT_ORGANIZATION_NAME: envConfig.SNAPKIT_ORGANIZATION_NAME,
-      SNAPKIT_DEFAULT_QUALITY: envConfig.SNAPKIT_DEFAULT_QUALITY?.toString(),
-      SNAPKIT_DEFAULT_OPTIMIZE_FORMAT:
-        envConfig.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT,
+      IMAGE_CDN_PROVIDER: detectedStrategy.getEnvVar('IMAGE_CDN_PROVIDER'),
+      IMAGE_CDN_URL: detectedStrategy.getEnvVar('IMAGE_CDN_URL'),
+      SNAPKIT_ORGANIZATION: detectedStrategy.getEnvVar('SNAPKIT_ORGANIZATION'),
     },
     allStrategies: environmentStrategies.map((strategy) => ({
       name: strategy.name,

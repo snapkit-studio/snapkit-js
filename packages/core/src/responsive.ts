@@ -2,6 +2,23 @@
  * Utility functions for responsive image processing
  */
 
+import {
+  DEFAULT_IMAGE_QUALITY,
+  DEFAULT_LAZY_LOAD_ROOT_MARGIN,
+  DEFAULT_LAZY_LOAD_THRESHOLD,
+  DEFAULT_SSR_VIEWPORT_HEIGHT,
+  DEFAULT_SSR_VIEWPORT_WIDTH,
+  MAX_IMAGE_HEIGHT,
+  MAX_IMAGE_WIDTH,
+  MIN_QUALITY_2G,
+  MIN_QUALITY_3G,
+  MIN_QUALITY_SAVE_DATA,
+  MOBILE_BREAKPOINT,
+  QUALITY_REDUCTION_2G,
+  QUALITY_REDUCTION_3G,
+  QUALITY_REDUCTION_SAVE_DATA,
+} from './constants';
+
 // Default responsive breakpoints
 export const DEFAULT_BREAKPOINTS = [
   { width: 640, name: 'sm' },
@@ -46,7 +63,13 @@ export function parseImageSizes(sizes: string): number[] {
   const parsedSizes: number[] = [];
 
   // Calculate expected sizes by screen width (simple estimation)
-  const viewportWidths = [375, 768, 1024, 1280, 1920]; // mobile, tablet, desktop
+  const viewportWidths = [
+    375,
+    MOBILE_BREAKPOINT,
+    1024,
+    1280,
+    DEFAULT_SSR_VIEWPORT_WIDTH,
+  ]; // mobile, tablet, desktop
 
   sizeMatches.forEach((size) => {
     if (size.endsWith('px')) {
@@ -87,7 +110,7 @@ export function generateResponsiveWidths(
   const {
     multipliers = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2],
     minWidth = 200,
-    maxWidth = 3840,
+    maxWidth = MAX_IMAGE_WIDTH,
   } = options || {};
 
   const widths = multipliers
@@ -114,8 +137,8 @@ export function calculateOptimalImageSize(
     : undefined;
 
   // Limit oversized images (memory and performance consideration)
-  const maxWidth = 3840; // 4K level
-  const maxHeight = 2160;
+  const maxWidth = MAX_IMAGE_WIDTH; // 4K level
+  const maxHeight = MAX_IMAGE_HEIGHT;
 
   return {
     width: Math.min(optimalWidth, maxWidth),
@@ -168,8 +191,8 @@ export function createLazyLoadObserver(
       });
     },
     {
-      rootMargin: '50px',
-      threshold: 0.1,
+      rootMargin: DEFAULT_LAZY_LOAD_ROOT_MARGIN,
+      threshold: DEFAULT_LAZY_LOAD_THRESHOLD,
       ...options,
     },
   );
@@ -182,8 +205,8 @@ export function getDeviceCharacteristics() {
   if (typeof window === 'undefined') {
     return {
       devicePixelRatio: 1,
-      viewportWidth: 1920,
-      viewportHeight: 1080,
+      viewportWidth: DEFAULT_SSR_VIEWPORT_WIDTH,
+      viewportHeight: DEFAULT_SSR_VIEWPORT_HEIGHT,
       isMobile: false,
       isTouch: false,
       connectionType: 'unknown',
@@ -203,7 +226,7 @@ export function getDeviceCharacteristics() {
     devicePixelRatio: window.devicePixelRatio || 1,
     viewportWidth: window.innerWidth,
     viewportHeight: window.innerHeight,
-    isMobile: window.innerWidth <= 768,
+    isMobile: window.innerWidth <= MOBILE_BREAKPOINT,
     isTouch: 'ontouchstart' in window,
     connectionType: connection?.effectiveType || 'unknown',
     dataLimit: connection?.saveData,
@@ -214,7 +237,7 @@ export function getDeviceCharacteristics() {
  * Adjust image quality based on network conditions
  */
 export function adjustQualityForConnection(
-  baseQuality: number = 85,
+  baseQuality: number = DEFAULT_IMAGE_QUALITY,
   connectionType?: string,
 ): number {
   if (typeof window === 'undefined') {
@@ -230,15 +253,18 @@ export function adjustQualityForConnection(
   const saveData = connection?.saveData === true;
 
   if (saveData) {
-    return Math.max(40, baseQuality - 30);
+    return Math.max(
+      MIN_QUALITY_SAVE_DATA,
+      baseQuality - QUALITY_REDUCTION_SAVE_DATA,
+    );
   }
 
   switch (effectiveType) {
     case 'slow-2g':
     case '2g':
-      return Math.max(30, baseQuality - 40);
+      return Math.max(MIN_QUALITY_2G, baseQuality - QUALITY_REDUCTION_2G);
     case '3g':
-      return Math.max(50, baseQuality - 20);
+      return Math.max(MIN_QUALITY_3G, baseQuality - QUALITY_REDUCTION_3G);
     case '4g':
     default:
       return baseQuality;

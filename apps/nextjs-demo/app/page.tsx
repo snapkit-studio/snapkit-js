@@ -2,12 +2,20 @@ import { DemoLayout, type NavGroup } from '@repo/demo-components';
 
 import { AdvancedTransformsExample } from './examples/AdvancedTransformsExample';
 import { BasicImageExample } from './examples/BasicImageExample';
+import { CdnConfigurationExample } from './examples/CdnConfigurationExample';
 import { ImageTransformsExample } from './examples/ImageTransformsExample';
 import { LazyLoadingExample } from './examples/LazyLoadingExample';
 import { PriorityLoadingExample } from './examples/PriorityLoadingExample';
 import { ResponsiveImagesExample } from './examples/ResponsiveImagesExample';
 
 const navigation: NavGroup[] = [
+  {
+    title: 'Configuration',
+    items: [
+      { id: 'cdn-config', title: 'CDN Configuration', href: '#cdn-config' },
+    ],
+    defaultOpen: true,
+  },
   {
     title: 'Basic Features',
     items: [
@@ -55,6 +63,10 @@ export default function Home() {
       navigation={navigation}
     >
       <div className="space-y-16">
+        <section id="cdn-config">
+          <CdnConfigurationExample />
+        </section>
+
         <section id="basic">
           <BasicImageExample />
         </section>

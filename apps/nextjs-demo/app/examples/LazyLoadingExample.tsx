@@ -38,7 +38,7 @@ export function LazyLoadingExample() {
         <CodeBlock language="tsx">
           {`// Default lazy loading (implicit)
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   alt="Lazy loaded image"
   width={400}
   height={300}
@@ -65,7 +65,7 @@ export function LazyLoadingExample() {
         <CodeBlock language="tsx">
           {`// Eager loading (for critical images)
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   alt="Eager loaded image"
   width={400}
   height={300}
@@ -94,7 +94,7 @@ export function LazyLoadingExample() {
         <CodeBlock language="tsx">
           {`// Blur placeholder
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   alt="Blur placeholder"
   width={400}
   height={300}
@@ -141,7 +141,7 @@ export function LazyLoadingExample() {
           {`// Color placeholder container
 <div className="bg-gray-200 p-4 min-h-[200px] flex items-center justify-center">
   <Image
-    src="/fox.jpg"
+    src="/landing-page/fox.jpg"
     alt="Placeholder example"
     width={300}
     height={200}

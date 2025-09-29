@@ -9,7 +9,10 @@ describe('SnapkitImageEngine', () => {
 
   beforeEach(() => {
     config = {
-      organizationName: 'test-org',
+      cdnConfig: {
+        provider: 'snapkit',
+        organizationName: 'test-org',
+      },
       defaultQuality: 80,
       defaultFormat: 'auto',
     };
@@ -23,8 +26,16 @@ describe('SnapkitImageEngine', () => {
     });
 
     it('should throw error with invalid organizationName', () => {
+      const invalidConfig: SnapkitConfig = {
+        ...config,
+        cdnConfig: {
+          provider: 'snapkit',
+          organizationName: '',
+        },
+      };
+
       expect(() => {
-        new SnapkitImageEngine({ ...config, organizationName: '' });
+        new SnapkitImageEngine(invalidConfig);
       }).toThrow('organizationName is required');
     });
 

@@ -4,16 +4,58 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": [
+        "IMAGE_CDN_PROVIDER",
+        "SNAPKIT_ORGANIZATION",
+        "IMAGE_CDN_URL",
+        "NEXT_PUBLIC_IMAGE_CDN_PROVIDER",
+        "NEXT_PUBLIC_SNAPKIT_ORGANIZATION",
+        "NEXT_PUBLIC_IMAGE_CDN_URL",
+        "VITE_IMAGE_CDN_PROVIDER",
+        "VITE_SNAPKIT_ORGANIZATION",
+        "VITE_IMAGE_CDN_URL",
+        "SNAPKIT_ORGANIZATION_NAME",
+        "SNAPKIT_DEFAULT_QUALITY",
+        "SNAPKIT_DEFAULT_OPTIMIZE_FORMAT"
+      ]
     },
     "check-types": {
       "dependsOn": ["^build"]
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "env": [
+        "IMAGE_CDN_PROVIDER",
+        "SNAPKIT_ORGANIZATION",
+        "IMAGE_CDN_URL",
+        "NEXT_PUBLIC_IMAGE_CDN_PROVIDER",
+        "NEXT_PUBLIC_SNAPKIT_ORGANIZATION",
+        "NEXT_PUBLIC_IMAGE_CDN_URL",
+        "VITE_IMAGE_CDN_PROVIDER",
+        "VITE_SNAPKIT_ORGANIZATION",
+        "VITE_IMAGE_CDN_URL",
+        "SNAPKIT_ORGANIZATION_NAME",
+        "SNAPKIT_DEFAULT_QUALITY",
+        "SNAPKIT_DEFAULT_OPTIMIZE_FORMAT"
+      ]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "env": [
+        "IMAGE_CDN_PROVIDER",
+        "SNAPKIT_ORGANIZATION",
+        "IMAGE_CDN_URL",
+        "NEXT_PUBLIC_IMAGE_CDN_PROVIDER",
+        "NEXT_PUBLIC_SNAPKIT_ORGANIZATION",
+        "NEXT_PUBLIC_IMAGE_CDN_URL",
+        "VITE_IMAGE_CDN_PROVIDER",
+        "VITE_SNAPKIT_ORGANIZATION",
+        "VITE_IMAGE_CDN_URL",
+        "SNAPKIT_ORGANIZATION_NAME",
+        "SNAPKIT_DEFAULT_QUALITY",
+        "SNAPKIT_DEFAULT_OPTIMIZE_FORMAT"
+      ]
     },
     "test:e2e": {
       "dependsOn": ["^build"],

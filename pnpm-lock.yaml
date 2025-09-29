@@ -90,6 +90,9 @@ importers:
       '@repo/demo-components':
         specifier: workspace:*
         version: link:../../packages/demo-components
+      '@snapkit-studio/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@snapkit-studio/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
@@ -142,6 +145,9 @@ importers:
       '@repo/demo-components':
         specifier: workspace:*
         version: link:../../packages/demo-components
+      '@snapkit-studio/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@snapkit-studio/react':
         specifier: workspace:*
         version: link:../../packages/react

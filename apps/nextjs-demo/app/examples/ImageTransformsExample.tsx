@@ -68,7 +68,7 @@ export function ImageTransformsExample() {
         <CodeBlock language="tsx">
           {`// Basic transform effects
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   alt="Grayscale image"
   width={200}
   height={150}
@@ -76,13 +76,13 @@ export function ImageTransformsExample() {
 />
 
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   alt="Blurred image"
   transforms={{ blur: 5 }}
 />
 
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   alt="Horizontal flip"
   transforms={{ flop: true }}
 />`}
@@ -200,7 +200,7 @@ export function ImageTransformsExample() {
         <CodeBlock language="tsx">
           {`// Composite transform effects
 <Image
-  src="/fox.jpg"
+  src="/landing-page/fox.jpg"
   transforms={{
     grayscale: true,
     blur: 3

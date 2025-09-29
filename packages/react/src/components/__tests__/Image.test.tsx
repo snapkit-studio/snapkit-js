@@ -1,5 +1,5 @@
-import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Image } from '../Image';
@@ -52,12 +52,7 @@ describe('Image', () => {
   describe('Basic rendering', () => {
     it('should render img element with required props', () => {
       render(
-        <Image
-          src="/test.jpg"
-          alt="Test image"
-          width={800}
-          height={600}
-        />,
+        <Image src="/test.jpg" alt="Test image" width={800} height={600} />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -133,12 +128,7 @@ describe('Image', () => {
   describe('Loading states', () => {
     it('should set loading="lazy" by default', () => {
       render(
-        <Image
-          src="/test.jpg"
-          alt="Test image"
-          width={800}
-          height={600}
-        />,
+        <Image src="/test.jpg" alt="Test image" width={800} height={600} />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -237,12 +227,7 @@ describe('Image', () => {
 
     it('should handle invalid dimensions', () => {
       render(
-        <Image
-          src="/test.jpg"
-          alt="Test image"
-          width={-100}
-          height={0}
-        />,
+        <Image src="/test.jpg" alt="Test image" width={-100} height={0} />,
       );
 
       const img = screen.getByAltText('Test image');

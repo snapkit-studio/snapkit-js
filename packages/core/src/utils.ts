@@ -2,6 +2,8 @@
  * Utility functions for Snapkit Studio image optimization
  */
 
+import { BYTES_PER_KB } from './constants';
+
 /**
  * Convert bytes to human readable format
  * @param bytes - Number of bytes
@@ -11,7 +13,7 @@
 export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) return '0 Bytes';
 
-  const k = 1024;
+  const k = BYTES_PER_KB;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 

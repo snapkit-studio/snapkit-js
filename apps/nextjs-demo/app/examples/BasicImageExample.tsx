@@ -95,9 +95,9 @@ function BasicExample() {
         <CodeBlock language="tsx">
           {`// Images in different sizes
 <div className="flex gap-4">
-  <Image src="/fox.jpg" alt="Small image" width={120} height={90} />
-  <Image src="/fox.jpg" alt="Medium image" width={200} height={150} />
-  <Image src="/fox.jpg" alt="Large image" width={300} height={225} />
+  <Image src="/landing-page/fox.jpg" alt="Small image" width={120} height={90} />
+  <Image src="/landing-page/fox.jpg" alt="Medium image" width={200} height={150} />
+  <Image src="/landing-page/fox.jpg" alt="Large image" width={300} height={225} />
 </div>`}
         </CodeBlock>
       </div>

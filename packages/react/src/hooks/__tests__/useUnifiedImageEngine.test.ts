@@ -8,35 +8,39 @@ import {
 
 // Mock the core module
 vi.mock('@snapkit-studio/core', () => ({
-  ImageEngineCache: {
-    getInstance: vi.fn((config) => ({
-      generateImageData: vi.fn((params) => ({
-        url: `${params.src}?q=${config.defaultQuality}`,
-        srcSet: `${params.src}?w=400 1x, ${params.src}?w=800 2x`,
-        size: {
-          width: params.width || 400,
-          height: params.height,
-        },
-        transforms: {
-          width: params.width,
-          height: params.height,
-          quality: params.quality || config.defaultQuality,
-          format: config.defaultFormat,
-        },
-        adjustedQuality: params.quality || config.defaultQuality,
-      })),
-      getConfig: vi.fn(() => config),
+  getCdnConfig: vi.fn(() => ({
+    provider: 'snapkit' as const,
+    organizationName: 'test-org',
+  })),
+  SnapkitImageEngine: vi.fn().mockImplementation((config) => ({
+    generateImageData: vi.fn((params) => ({
+      url: `${params.src}?q=${config.defaultQuality}`,
+      srcSet: `${params.src}?w=400 1x, ${params.src}?w=800 2x`,
+      size: {
+        width: params.width || 400,
+        height: params.height,
+      },
+      transforms: {
+        width: params.width,
+        height: params.height,
+        quality: params.quality || config.defaultQuality,
+        format: config.defaultFormat,
+      },
+      adjustedQuality: params.quality || config.defaultQuality,
     })),
-  },
+    getConfig: vi.fn(() => config),
+  })),
 }));
 
 // Mock env config
 vi.mock('../../utils/env-config', () => ({
   mergeConfigWithEnv: vi.fn((props) => ({
-    organizationName: props?.organizationName || 'test-org',
+    cdnConfig: {
+      provider: 'snapkit' as const,
+      organizationName: props?.organizationName || 'test-org',
+    },
     defaultQuality: props?.defaultQuality || 85,
     defaultFormat: props?.defaultFormat || 'auto',
-    baseUrl: 'https://cdn.example.com',
   })),
 }));
 
@@ -128,44 +132,29 @@ describe('useUnifiedImageEngine', () => {
       expect(result.current.srcSet).toBeDefined();
     });
 
-    it('should use custom organization name', async () => {
-      const { mergeConfigWithEnv } = vi.mocked(
-        await import('../../utils/env-config'),
-      );
+    it('should use CDN configuration from environment', async () => {
+      const { getCdnConfig } = vi.mocked(await import('@snapkit-studio/core'));
 
       const props = {
         src: '/test.jpg',
         width: 800,
-        organizationName: 'custom-org',
       };
 
       renderHook(() => useUnifiedImageEngine(props));
 
-      expect(mergeConfigWithEnv).toHaveBeenCalledWith(
-        expect.objectContaining({
-          organizationName: 'custom-org',
-        }),
-      );
+      expect(getCdnConfig).toHaveBeenCalled();
     });
 
-    it('should use custom default format', async () => {
-      const { mergeConfigWithEnv } = vi.mocked(
-        await import('../../utils/env-config'),
-      );
-
+    it('should use custom default format', () => {
       const props = {
         src: '/test.jpg',
         width: 800,
         defaultFormat: 'webp' as const,
       };
 
-      renderHook(() => useUnifiedImageEngine(props));
+      const { result } = renderHook(() => useUnifiedImageEngine(props));
 
-      expect(mergeConfigWithEnv).toHaveBeenCalledWith(
-        expect.objectContaining({
-          defaultFormat: 'webp',
-        }),
-      );
+      expect(result.current.transforms.format).toBe('webp');
     });
   });
 

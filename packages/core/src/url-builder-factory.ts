@@ -1,4 +1,4 @@
-import type { SnapkitConfig } from './types';
+import type { CdnConfig } from './types';
 import { SnapkitUrlBuilder } from './url-builder';
 
 /**
@@ -9,17 +9,15 @@ export class UrlBuilderFactory {
   private static instances = new Map<string, SnapkitUrlBuilder>();
 
   /**
-   * Get or create a SnapkitUrlBuilder instance for the given configuration
-   * @param config - Snapkit configuration
+   * Get or create a SnapkitUrlBuilder instance for the given CDN configuration
+   * @param config - CDN configuration
    * @returns Cached or new SnapkitUrlBuilder instance
    */
-  static getInstance(config: SnapkitConfig): SnapkitUrlBuilder {
+  static getInstance(config: CdnConfig): SnapkitUrlBuilder {
     const key = this.createKey(config);
 
     if (!this.instances.has(key)) {
-      // SnapkitUrlBuilder only accepts organizationName in constructor
-      // Quality and format are handled at the transform level
-      const builder = new SnapkitUrlBuilder(config.organizationName);
+      const builder = new SnapkitUrlBuilder(config);
       this.instances.set(key, builder);
     }
 
@@ -35,13 +33,16 @@ export class UrlBuilderFactory {
 
   /**
    * Create a unique key for the configuration
-   * @param config - Snapkit configuration
+   * @param config - CDN configuration
    * @returns Unique key string
    */
-  private static createKey(config: SnapkitConfig): string {
-    // Since SnapkitUrlBuilder only uses organizationName,
-    // we only need organizationName in the cache key
-    return config.organizationName;
+  private static createKey(config: CdnConfig): string {
+    if (config.provider === 'snapkit') {
+      return `snapkit:${config.organizationName}`;
+    } else if (config.provider === 'custom') {
+      return `custom:${config.baseUrl}`;
+    }
+    throw new Error(`Unsupported CDN provider: ${config.provider}`);
   }
 
   /**

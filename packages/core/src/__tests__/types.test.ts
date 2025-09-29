@@ -203,23 +203,29 @@ describe('Type definition validation', () => {
   });
 
   describe('SnapkitConfig interface', () => {
-    it('should require organizationName, defaultQuality and defaultFormat', () => {
+    it('should require cdnConfig, defaultQuality and defaultFormat', () => {
       const minimalConfig: SnapkitConfig = {
-        organizationName: 'test-org',
+        cdnConfig: {
+          provider: 'snapkit',
+          organizationName: 'test-org',
+        },
         defaultQuality: 85,
         defaultFormat: 'auto',
       };
-      expect(minimalConfig.organizationName).toBe('test-org');
+      expect(minimalConfig.cdnConfig.organizationName).toBe('test-org');
       expect(minimalConfig.defaultQuality).toBe(85);
       expect(minimalConfig.defaultFormat).toBe('auto');
 
       const fullConfig: SnapkitConfig = {
-        organizationName: 'test-org',
+        cdnConfig: {
+          provider: 'custom',
+          baseUrl: 'https://cdn.example.com',
+        },
         defaultQuality: 85,
         defaultFormat: 'auto',
       };
 
-      expect(fullConfig.organizationName).toBe('test-org');
+      expect(fullConfig.cdnConfig.baseUrl).toBe('https://cdn.example.com');
       expect(fullConfig.defaultQuality).toBe(85);
       expect(fullConfig.defaultFormat).toBe('auto');
     });
@@ -234,7 +240,10 @@ describe('Type definition validation', () => {
 
       formats.forEach((format) => {
         const config: SnapkitConfig = {
-          organizationName: 'test-org',
+          cdnConfig: {
+            provider: 'snapkit',
+            organizationName: 'test-org',
+          },
           defaultQuality: 85,
           defaultFormat: format,
         };

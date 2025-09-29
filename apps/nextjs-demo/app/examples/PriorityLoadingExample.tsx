@@ -34,7 +34,7 @@ export function PriorityLoadingExample() {
         <CodeBlock language="tsx">
           {`// Hero image - highest priority
 <Image
-  src="/hero-image.jpg"
+  src="/landing-page/fox.jpg"
   alt="Hero image"
   width={800}
   height={400}
@@ -83,7 +83,7 @@ export function PriorityLoadingExample() {
         <CodeBlock language="tsx">
           {`// Above-the-fold images
 <Image
-  src="/important-image.jpg"
+  src="/landing-page/fox.jpg"
   alt="Important image"
   width={400}
   height={300}
@@ -117,7 +117,7 @@ export function PriorityLoadingExample() {
         <CodeBlock language="tsx">
           {`// Standard content images
 <Image
-  src="/content-image.jpg"
+  src="/landing-page/fox.jpg"
   alt="Standard image"
   width={300}
   height={200}

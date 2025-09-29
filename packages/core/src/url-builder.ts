@@ -1,30 +1,26 @@
-import { ImageTransforms } from './types';
+import { CdnConfig, ImageTransforms } from './types';
 
 /**
- * Generate Snapkit image proxy URLs
+ * Generate image URLs with different CDN providers
  */
 export class SnapkitUrlBuilder {
   private baseUrl: string;
 
-  constructor(organizationName: string) {
-    // Handle different parameter combinations
-    if (typeof organizationName === 'string') {
-      // Single parameter case - check if it looks like a URL or organization name
-      if (
-        organizationName.startsWith('http://') ||
-        organizationName.startsWith('https://')
-      ) {
-        // It's a baseUrl without organizationName
-        this.baseUrl = organizationName;
-      } else {
-        // It's an organizationName (backward compatibility)
-        this.baseUrl = `https://${organizationName}-cdn.snapkit.studio`;
+  constructor(config: CdnConfig) {
+    if (config.provider === 'snapkit') {
+      if (!config.organizationName) {
+        throw new Error(
+          'organizationName is required when using snapkit provider',
+        );
       }
+      this.baseUrl = `https://${config.organizationName}-cdn.snapkit.studio`;
+    } else if (config.provider === 'custom') {
+      if (!config.baseUrl) {
+        throw new Error('baseUrl is required when using custom provider');
+      }
+      this.baseUrl = config.baseUrl;
     } else {
-      // Two parameter case or no parameters
-      this.baseUrl =
-        organizationName ||
-        `https://${organizationName || ''}-cdn.snapkit.studio`;
+      throw new Error(`Unsupported CDN provider: ${config.provider}`);
     }
   }
 
@@ -40,7 +36,6 @@ export class SnapkitUrlBuilder {
     // Add slash if not starting with one
     const path = src.startsWith('/') ? src : `/${src}`;
 
-    console.log('baseUrl', this.baseUrl);
     return `${this.baseUrl}${path}`;
   }
 
@@ -62,10 +57,6 @@ export class SnapkitUrlBuilder {
 
     return `${baseUrl}?${params}`;
   }
-
-  /**
-   * Build image URL with transformations
-   */
 
   /**
    * Generate format-specific URLs (for picture tags)
