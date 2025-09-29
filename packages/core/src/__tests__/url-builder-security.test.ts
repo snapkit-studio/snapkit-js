@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { SnapkitUrlBuilder } from '../url-builder';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import type { CdnConfig } from '../types';
+import { SnapkitUrlBuilder } from '../url-builder';
 
 describe('SnapkitUrlBuilder Security', () => {
   describe('constructor validation', () => {
@@ -31,7 +32,7 @@ describe('SnapkitUrlBuilder Security', () => {
         };
 
         expect(() => new SnapkitUrlBuilder(config)).toThrow(
-          'organizationName must only contain lowercase letters, numbers, and hyphens'
+          'organizationName must only contain lowercase letters, numbers, and hyphens',
         );
       }
     });
@@ -67,7 +68,9 @@ describe('SnapkitUrlBuilder Security', () => {
           baseUrl: url,
         };
 
-        expect(() => new SnapkitUrlBuilder(config)).toThrow('Security validation failed');
+        expect(() => new SnapkitUrlBuilder(config)).toThrow(
+          'Security validation failed',
+        );
       }
     });
   });
@@ -105,7 +108,9 @@ describe('SnapkitUrlBuilder Security', () => {
       ];
 
       for (const path of maliciousPaths) {
-        expect(() => builder.buildImageUrl(path)).toThrow('Security validation failed');
+        expect(() => builder.buildImageUrl(path)).toThrow(
+          'Security validation failed',
+        );
       }
     });
 
@@ -122,20 +127,30 @@ describe('SnapkitUrlBuilder Security', () => {
 
     it('should reject malicious external URLs', () => {
       // Non-HTTP protocols should be rejected
-      expect(() => builder.buildImageUrl('javascript:alert(1)')).toThrow('Security validation failed');
-      expect(() => builder.buildImageUrl('data:text/html,<script>alert(1)</script>')).toThrow('Security validation failed');
+      expect(() => builder.buildImageUrl('javascript:alert(1)')).toThrow(
+        'Security validation failed',
+      );
+      expect(() =>
+        builder.buildImageUrl('data:text/html,<script>alert(1)</script>'),
+      ).toThrow('Security validation failed');
 
       // URLs with XSS patterns should be rejected
-      expect(() => builder.buildImageUrl('https://example.com/<script>alert(1)</script>')).toThrow('Security validation failed');
+      expect(() =>
+        builder.buildImageUrl('https://example.com/<script>alert(1)</script>'),
+      ).toThrow('Security validation failed');
     });
 
     it('should sanitize paths properly', () => {
       // These paths should be sanitized but not throw errors
       const result1 = builder.buildImageUrl('images//photo.jpg');
-      expect(result1).toBe('https://test-org-cdn.snapkit.studio/images/photo.jpg');
+      expect(result1).toBe(
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg',
+      );
 
       const result2 = builder.buildImageUrl('./images/photo.jpg');
-      expect(result2).toBe('https://test-org-cdn.snapkit.studio/images/photo.jpg');
+      expect(result2).toBe(
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg',
+      );
     });
   });
 
@@ -154,7 +169,7 @@ describe('SnapkitUrlBuilder Security', () => {
       const xssAttempts = [
         'image.jpg<script>alert(1)</script>',
         'image.jpg" onerror="alert(1)',
-        'image.jpg\' onload=\'alert(1)',
+        "image.jpg' onload='alert(1)",
       ];
 
       for (const attempt of xssAttempts) {
@@ -167,9 +182,15 @@ describe('SnapkitUrlBuilder Security', () => {
 
     it('should handle null bytes and control characters', () => {
       // Paths with control characters should be rejected
-      expect(() => builder.buildImageUrl('image.jpg\x00.png')).toThrow('Security validation failed');
-      expect(() => builder.buildImageUrl('image\x1F.jpg')).toThrow('Security validation failed');
-      expect(() => builder.buildImageUrl('image\x7F.jpg')).toThrow('Security validation failed');
+      expect(() => builder.buildImageUrl('image.jpg\x00.png')).toThrow(
+        'Security validation failed',
+      );
+      expect(() => builder.buildImageUrl('image\x1F.jpg')).toThrow(
+        'Security validation failed',
+      );
+      expect(() => builder.buildImageUrl('image\x7F.jpg')).toThrow(
+        'Security validation failed',
+      );
     });
   });
 
@@ -191,7 +212,9 @@ describe('SnapkitUrlBuilder Security', () => {
         height: 100,
       });
 
-      expect(result).toBe('https://test-org-cdn.snapkit.studio/images/photo.jpg?w=100&h=100');
+      expect(result).toBe(
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=100&h=100',
+      );
     });
 
     it('should handle srcset generation with security', () => {
@@ -199,9 +222,15 @@ describe('SnapkitUrlBuilder Security', () => {
         quality: 80,
       });
 
-      expect(srcset).toContain('https://test-org-cdn.snapkit.studio/images/photo.jpg?w=100&quality=80');
-      expect(srcset).toContain('https://test-org-cdn.snapkit.studio/images/photo.jpg?w=200&quality=80');
-      expect(srcset).toContain('https://test-org-cdn.snapkit.studio/images/photo.jpg?w=300&quality=80');
+      expect(srcset).toContain(
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=100&quality=80',
+      );
+      expect(srcset).toContain(
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=200&quality=80',
+      );
+      expect(srcset).toContain(
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=300&quality=80',
+      );
     });
   });
 });

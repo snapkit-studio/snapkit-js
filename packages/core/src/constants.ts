@@ -44,7 +44,7 @@ export const MIN_FIREFOX_VERSION_AVIF = 93;
 export const MIN_EDGE_VERSION_AVIF = 91;
 export const MIN_CHROME_VERSION_WEBP = 23;
 export const MIN_FIREFOX_VERSION_WEBP = 65;
-export const MIN_EDGE_VERSION_WEBP = 14;
+export const MIN_EDGE_VERSION_WEBP = 79; // Chromium-based Edge only (Legacy EdgeHTML Edge not supported)
 export const MIN_SAFARI_VERSION_WEBP = 14;
 
 // iOS Version Constants

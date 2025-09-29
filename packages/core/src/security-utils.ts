@@ -16,17 +16,20 @@ export function isValidUrl(url: string): boolean {
     }
 
     // Prevent javascript: protocol and data: URIs
-    if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) {
+    if (
+      url.toLowerCase().includes('javascript:') ||
+      url.toLowerCase().includes('data:')
+    ) {
       return false;
     }
 
     // Check for suspicious patterns
     const suspiciousPatterns = [
-      /[\x00-\x1F\x7F]/,  // Control characters
-      /<script/i,         // Script tags
-      /on\w+\s*=/i,       // Event handlers
-      /javascript:/i,     // JavaScript protocol
-      /vbscript:/i,       // VBScript protocol
+      /[\x00-\x1F\x7F]/, // Control characters
+      /<script/i, // Script tags
+      /on\w+\s*=/i, // Event handlers
+      /javascript:/i, // JavaScript protocol
+      /vbscript:/i, // VBScript protocol
     ];
 
     for (const pattern of suspiciousPatterns) {
@@ -66,11 +69,11 @@ export function sanitizePath(path: string): string {
     }
     // Remove any remaining suspicious patterns and XSS attempts
     const cleanSegment = segment
-      .replace(/[<>:"|?*]/g, '')  // Remove invalid path characters
-      .replace(/[\x00-\x1F\x7F]/g, '')  // Remove control characters
-      .replace(/\bon\w+\s*=/gi, '')  // Remove event handlers
-      .replace(/javascript:/gi, '')  // Remove javascript protocol
-      .replace(/<script/gi, '');  // Remove script tags
+      .replace(/[<>:"|?*]/g, '') // Remove invalid path characters
+      .replace(/[\x00-\x1F\x7F]/g, '') // Remove control characters
+      .replace(/\bon\w+\s*=/gi, '') // Remove event handlers
+      .replace(/javascript:/gi, '') // Remove javascript protocol
+      .replace(/<script/gi, ''); // Remove script tags
 
     if (cleanSegment) {
       result.push(cleanSegment);
@@ -107,11 +110,11 @@ export function isValidPath(path: string): boolean {
 
   // Check for directory traversal patterns
   const traversalPatterns = [
-    /\.\.\//,           // ../
-    /\.\.\\/,           // ..\
-    /%2e%2e/i,          // URL encoded ..
-    /\.\.%2f/i,         // Mixed encoding
-    /%252e%252e/i,      // Double encoded
+    /\.\.\//, // ../
+    /\.\.\\/, // ..\
+    /%2e%2e/i, // URL encoded ..
+    /\.\.%2f/i, // Mixed encoding
+    /%252e%252e/i, // Double encoded
   ];
 
   for (const pattern of traversalPatterns) {
@@ -121,8 +124,12 @@ export function isValidPath(path: string): boolean {
   }
 
   // Check for absolute paths that might escape the intended directory
-  if (path.startsWith('/etc/') || path.startsWith('/usr/') ||
-      path.startsWith('C:\\') || path.includes(':\\')) {
+  if (
+    path.startsWith('/etc/') ||
+    path.startsWith('/usr/') ||
+    path.startsWith('C:\\') ||
+    path.includes(':\\')
+  ) {
     return false;
   }
 
@@ -139,7 +146,7 @@ export function createSecurityError(
 ): Error {
   const error = new Error(
     `Security validation failed for ${operation}: ${reason}. ` +
-    `Input: "${input.substring(0, 100)}${input.length > 100 ? '...' : ''}"`
+      `Input: "${input.substring(0, 100)}${input.length > 100 ? '...' : ''}"`,
   );
   error.name = 'SecurityValidationError';
   return error;

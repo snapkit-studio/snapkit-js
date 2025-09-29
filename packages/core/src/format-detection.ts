@@ -1,14 +1,13 @@
 /**
  * Detect browser support for image formats
  */
-
 import { estimateFormatSupportFromUA } from './browser-compatibility';
+
+// Re-export for test compatibility
+export { estimateFormatSupportFromUA };
 
 // Format support cache (exported for test access)
 export const formatSupport = new Map<string, boolean>();
-
-// Re-export from browser-compatibility for backward compatibility
-export { estimateFormatSupportFromUA };
 
 /**
  * Check support for specific image format

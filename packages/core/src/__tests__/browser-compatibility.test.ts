@@ -224,20 +224,20 @@ describe('Browser Compatibility Utils', () => {
       expect(checkWebpSupport(browserInfo)).toBe(false);
     });
 
-    it('Should support WebP in Edge 18+', () => {
+    it('Should not support WebP in Legacy Edge 18', () => {
       const browserInfo: BrowserInfo = {
         name: 'edge',
         version: 18,
         platform: 'desktop',
       };
 
-      expect(checkWebpSupport(browserInfo)).toBe(true);
+      expect(checkWebpSupport(browserInfo)).toBe(false); // Legacy EdgeHTML Edge doesn't support WebP properly
     });
 
-    it('Should support WebP in legacy Edge', () => {
+    it('Should support WebP in Chromium Edge 79+', () => {
       const browserInfo: BrowserInfo = {
         name: 'edge',
-        version: 0,
+        version: 79,
         platform: 'desktop',
       };
 
@@ -341,12 +341,21 @@ describe('Browser Compatibility Utils', () => {
       expect(result.webp).toBe(true);
     });
 
-    it('Should detect WebP but not AVIF in Edge 18', () => {
+    it('Should not detect WebP or AVIF in Legacy Edge 18', () => {
       const userAgent =
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
+      expect(result.webp).toBe(false); // Legacy EdgeHTML Edge doesn't support WebP properly
+    });
+
+    it('Should detect WebP and AVIF in Chromium Edge 91+', () => {
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.64';
+      const result = getFormatSupportFromUA(userAgent);
+
+      expect(result.avif).toBe(true);
       expect(result.webp).toBe(true);
     });
 

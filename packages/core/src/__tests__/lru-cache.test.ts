@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import { LRUCache } from '../lru-cache';
 
 describe('LRUCache', () => {
@@ -144,8 +145,12 @@ describe('LRUCache', () => {
     });
 
     it('should throw error for invalid cache size', () => {
-      expect(() => new LRUCache<string, number>(0)).toThrow('LRU cache size must be positive');
-      expect(() => new LRUCache<string, number>(-1)).toThrow('LRU cache size must be positive');
+      expect(() => new LRUCache<string, number>(0)).toThrow(
+        'LRU cache size must be positive',
+      );
+      expect(() => new LRUCache<string, number>(-1)).toThrow(
+        'LRU cache size must be positive',
+      );
     });
 
     it('should handle different key types', () => {

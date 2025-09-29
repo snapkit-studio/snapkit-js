@@ -18,7 +18,7 @@ import {
 } from './constants';
 
 export interface BrowserInfo {
-  name: 'chrome' | 'firefox' | 'safari' | 'edge' | 'unknown';
+  name: 'chrome' | 'firefox' | 'safari' | 'edge' | 'legacy-edge' | 'unknown';
   version: number;
   platform: 'desktop' | 'ios' | 'android' | 'unknown';
   iosVersion?: { major: number; minor: number };
@@ -62,19 +62,22 @@ export function parseBrowserInfo(userAgent: string): BrowserInfo {
   const chromeMatch = ua.match(/Chrome\/(\d+)/);
   const iosChromeMatch = ua.match(/CriOS\/(\d+)/);
   const firefoxMatch = ua.match(/Firefox\/(\d+)/);
-  const edgeMatch = ua.match(/Edg\/(\d+)/);
-  const legacyEdgeMatch = ua.match(/Edge\/(\d+)/);
+  const edgeMatch = ua.match(/Edg\/(\d+)/); // Chromium-based Edge
+  const legacyEdgeMatch = ua.match(/Edge\/(\d+)/); // Legacy EdgeHTML Edge
   const safariMatch = ua.match(/Version\/(\d+).*Safari/);
 
   // Edge detection should come before Chrome since Edge also contains Chrome in UA
-  if (edgeMatch || legacyEdgeMatch) {
+  if (edgeMatch) {
     return {
       name: 'edge',
-      version: edgeMatch
-        ? parseInt(edgeMatch[1])
-        : legacyEdgeMatch
-          ? parseInt(legacyEdgeMatch[1])
-          : 0,
+      version: parseInt(edgeMatch[1]),
+      platform,
+      iosVersion,
+    };
+  } else if (legacyEdgeMatch) {
+    return {
+      name: 'legacy-edge',
+      version: parseInt(legacyEdgeMatch[1]),
       platform,
       iosVersion,
     };
@@ -138,6 +141,10 @@ export function checkAvifSupport(browserInfo: BrowserInfo): boolean {
       // Edge is Chromium-based, same support as Chrome
       return browserInfo.version >= MIN_EDGE_VERSION_AVIF;
 
+    case 'legacy-edge':
+      // Legacy EdgeHTML Edge doesn't support AVIF
+      return false;
+
     case 'safari':
       // Safari on iOS/macOS 16.4+ supports AVIF fully
       if (browserInfo.iosVersion) {
@@ -168,10 +175,11 @@ export function checkWebpSupport(browserInfo: BrowserInfo): boolean {
       return browserInfo.version >= MIN_FIREFOX_VERSION_WEBP;
 
     case 'edge':
-      return (
-        browserInfo.version >= MIN_EDGE_VERSION_WEBP ||
-        browserInfo.version === 0
-      ); // Legacy Edge detection
+      return browserInfo.version >= MIN_EDGE_VERSION_WEBP;
+
+    case 'legacy-edge':
+      // Legacy EdgeHTML Edge doesn't support WebP properly
+      return false;
 
     case 'safari':
       // Safari on iOS 14+ supports WebP

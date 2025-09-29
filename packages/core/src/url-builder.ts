@@ -1,5 +1,10 @@
+import {
+  createSecurityError,
+  isValidPath,
+  isValidUrl,
+  sanitizePath,
+} from './security-utils';
 import { CdnConfig, ImageTransforms } from './types';
-import { isValidUrl, isValidPath, sanitizePath, createSecurityError } from './security-utils';
 
 /**
  * Generate image URLs with different CDN providers
@@ -27,7 +32,11 @@ export class SnapkitUrlBuilder {
       }
       // Validate custom base URL
       if (!isValidUrl(config.baseUrl)) {
-        throw createSecurityError('custom CDN URL validation', config.baseUrl, 'Invalid or potentially malicious URL');
+        throw createSecurityError(
+          'custom CDN URL validation',
+          config.baseUrl,
+          'Invalid or potentially malicious URL',
+        );
       }
       this.baseUrl = config.baseUrl;
     } else {
@@ -43,7 +52,11 @@ export class SnapkitUrlBuilder {
     if (src.startsWith('http://') || src.startsWith('https://')) {
       // Validate URL to prevent malicious URLs
       if (!isValidUrl(src)) {
-        throw createSecurityError('image URL validation', src, 'Invalid or potentially malicious URL');
+        throw createSecurityError(
+          'image URL validation',
+          src,
+          'Invalid or potentially malicious URL',
+        );
       }
       return src;
     }
@@ -53,7 +66,11 @@ export class SnapkitUrlBuilder {
 
     // Validate and sanitize path
     if (!isValidPath(path)) {
-      throw createSecurityError('image path validation', path, 'Invalid or potentially malicious path');
+      throw createSecurityError(
+        'image path validation',
+        path,
+        'Invalid or potentially malicious path',
+      );
     }
 
     // Sanitize and normalize the path

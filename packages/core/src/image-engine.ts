@@ -197,7 +197,7 @@ export class SnapkitImageEngine {
       ...params.transforms,
       width: imageSize.width,
       height: imageSize.height,
-      quality: params.quality || adjustedQuality,
+      quality: params.quality ?? adjustedQuality,
       format: params.transforms?.format || this.config.defaultFormat || 'auto',
     };
   }
@@ -278,7 +278,7 @@ export class SnapkitImageEngine {
     // Network-based quality adjustment
     const baseQuality = params.quality || this.config.defaultQuality;
     const adjustedQuality =
-      params.adjustQualityByNetwork !== false
+      params.adjustQualityByNetwork === true
         ? adjustQualityForConnection(baseQuality)
         : baseQuality;
 

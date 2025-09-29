@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
-  isValidUrl,
-  isValidPath,
-  sanitizePath,
   createSecurityError,
+  isValidPath,
+  isValidUrl,
+  sanitizePath,
 } from '../security-utils';
 
 describe('Security Utils', () => {
@@ -11,21 +12,33 @@ describe('Security Utils', () => {
     it('should accept valid URLs', () => {
       expect(isValidUrl('https://example.com/image.jpg')).toBe(true);
       expect(isValidUrl('http://cdn.example.com/path/to/image.png')).toBe(true);
-      expect(isValidUrl('https://cdn.test.io:8080/images/test.webp')).toBe(true);
+      expect(isValidUrl('https://cdn.test.io:8080/images/test.webp')).toBe(
+        true,
+      );
     });
 
     it('should reject malicious URLs', () => {
       expect(isValidUrl('javascript:alert("XSS")')).toBe(false);
-      expect(isValidUrl('data:text/html,<script>alert("XSS")</script>')).toBe(false);
+      expect(isValidUrl('data:text/html,<script>alert("XSS")</script>')).toBe(
+        false,
+      );
       expect(isValidUrl('vbscript:msgbox("XSS")')).toBe(false);
       expect(isValidUrl('file:///etc/passwd')).toBe(false);
       expect(isValidUrl('ftp://malicious.com/file')).toBe(false);
     });
 
     it('should reject URLs with XSS patterns', () => {
-      expect(isValidUrl('https://example.com/<script>alert("XSS")</script>')).toBe(false);
-      expect(isValidUrl('https://example.com/image.jpg?onclick=alert("XSS")')).toBe(false);
-      expect(isValidUrl('https://example.com/image.jpg#<img src=x onerror=alert(1)>')).toBe(false);
+      expect(
+        isValidUrl('https://example.com/<script>alert("XSS")</script>'),
+      ).toBe(false);
+      expect(
+        isValidUrl('https://example.com/image.jpg?onclick=alert("XSS")'),
+      ).toBe(false);
+      expect(
+        isValidUrl(
+          'https://example.com/image.jpg#<img src=x onerror=alert(1)>',
+        ),
+      ).toBe(false);
     });
 
     it('should reject URLs with control characters', () => {
@@ -75,18 +88,26 @@ describe('Security Utils', () => {
     it('should sanitize valid paths', () => {
       expect(sanitizePath('/images/photo.jpg')).toBe('/images/photo.jpg');
       expect(sanitizePath('images/photo.jpg')).toBe('/images/photo.jpg');
-      expect(sanitizePath('/assets/images/logo.svg')).toBe('/assets/images/logo.svg');
+      expect(sanitizePath('/assets/images/logo.svg')).toBe(
+        '/assets/images/logo.svg',
+      );
     });
 
     it('should remove directory traversal attempts', () => {
       expect(sanitizePath('../../../etc/passwd')).toBe('/etc/passwd');
-      expect(sanitizePath('images/../../../etc/passwd')).toBe('/images/etc/passwd');
-      expect(sanitizePath('/images/../photos/image.jpg')).toBe('/images/photos/image.jpg');
+      expect(sanitizePath('images/../../../etc/passwd')).toBe(
+        '/images/etc/passwd',
+      );
+      expect(sanitizePath('/images/../photos/image.jpg')).toBe(
+        '/images/photos/image.jpg',
+      );
     });
 
     it('should normalize multiple slashes', () => {
       expect(sanitizePath('//images///photo.jpg')).toBe('/images/photo.jpg');
-      expect(sanitizePath('/images////gallery//photo.jpg')).toBe('/images/gallery/photo.jpg');
+      expect(sanitizePath('/images////gallery//photo.jpg')).toBe(
+        '/images/gallery/photo.jpg',
+      );
     });
 
     it('should remove null bytes and control characters', () => {
@@ -108,7 +129,11 @@ describe('Security Utils', () => {
 
   describe('createSecurityError', () => {
     it('should create security error with context', () => {
-      const error = createSecurityError('URL validation', 'javascript:alert(1)', 'XSS attempt detected');
+      const error = createSecurityError(
+        'URL validation',
+        'javascript:alert(1)',
+        'XSS attempt detected',
+      );
 
       expect(error).toBeInstanceOf(Error);
       expect(error.name).toBe('SecurityValidationError');
@@ -119,7 +144,11 @@ describe('Security Utils', () => {
 
     it('should truncate long input in error message', () => {
       const longInput = 'a'.repeat(150);
-      const error = createSecurityError('path validation', longInput, 'Invalid path');
+      const error = createSecurityError(
+        'path validation',
+        longInput,
+        'Invalid path',
+      );
 
       expect(error.message).toContain('a'.repeat(100) + '...');
       expect(error.message).not.toContain('a'.repeat(101));
