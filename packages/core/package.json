@@ -1,6 +1,6 @@
 {
   "name": "@snapkit-studio/core",
-  "version": "1.9.2-rc.2",
+  "version": "1.9.2",
   "description": "Core utilities and types for Snapkit Studio image optimization",
   "keywords": [
     "snapkit",

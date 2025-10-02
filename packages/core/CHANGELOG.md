@@ -1,5 +1,11 @@
 # @snapkit-studio/core
 
+## 1.9.2
+
+### Patch Changes
+
+- chore: release stable version 1.9.2
+
 ## 1.9.2-rc.2
 
 ### Patch Changes

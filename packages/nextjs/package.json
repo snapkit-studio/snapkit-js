@@ -1,6 +1,6 @@
 {
   "name": "@snapkit-studio/nextjs",
-  "version": "1.7.3-rc.2",
+  "version": "1.7.3",
   "description": "Next.js image loader for Snapkit image optimization",
   "keywords": [
     "nextjs",
