@@ -85,20 +85,51 @@ export class SnapkitUrlBuilder {
    * Generate image URL with transformation parameters
    */
   buildTransformedUrl(src: string, transforms: ImageTransforms): string {
-    const baseUrl = this.buildImageUrl(src);
-    const params = this.buildQueryParams(transforms);
+    // Check if src is a complete URL (http:// or https://)
+    const isCompleteUrl = src.startsWith('http://') || src.startsWith('https://');
 
-    // Only add query params if there are any
-    if (!params) {
-      return baseUrl;
+    if (isCompleteUrl) {
+      // URL-based approach: use url query parameter
+      // Validate the URL for security
+      if (!isValidUrl(src)) {
+        throw createSecurityError(
+          'external URL validation',
+          src,
+          'Invalid or potentially malicious URL',
+        );
+      }
+
+      const params = new URLSearchParams();
+      params.set('url', src);
+
+      const transformString = this.buildTransformString(transforms);
+      if (transformString) {
+        params.set('transform', transformString);
+      }
+
+      // Use /image endpoint for URL-based transformations
+      return `${this.baseUrl}/image?${params.toString()}`;
+    } else {
+      // Path-based approach: traditional path + transform parameter
+      const baseUrl = this.buildImageUrl(src);
+      const transformString = this.buildTransformString(transforms);
+
+      // Only add transform param if there are any transforms
+      if (!transformString) {
+        return baseUrl;
+      }
+
+      // Build the transform query parameter
+      const params = new URLSearchParams();
+      params.set('transform', transformString);
+
+      // Check if the resulting URL already has query params
+      if (baseUrl.includes('?')) {
+        return `${baseUrl}&${params.toString()}`;
+      }
+
+      return `${baseUrl}?${params.toString()}`;
     }
-
-    // Check if the resulting URL already has query params
-    if (baseUrl.includes('?')) {
-      return `${baseUrl}&${params}`;
-    }
-
-    return `${baseUrl}?${params}`;
   }
 
   /**
@@ -169,44 +200,42 @@ export class SnapkitUrlBuilder {
   /**
    * Convert transformation parameters to query string
    */
-  private buildQueryParams(transforms: ImageTransforms): string {
-    const params = new URLSearchParams();
+  private buildTransformString(transforms: ImageTransforms): string {
+    const parts: string[] = [];
 
     // Size adjustment
-    if (transforms.width) params.set('w', transforms.width.toString());
-    if (transforms.height) params.set('h', transforms.height.toString());
-    if (transforms.fit) params.set('fit', transforms.fit);
+    if (transforms.width) parts.push(`w:${transforms.width}`);
+    if (transforms.height) parts.push(`h:${transforms.height}`);
+    if (transforms.fit) parts.push(`fit:${transforms.fit}`);
 
     // Device Pixel Ratio for high-DPI displays
-    if (transforms.dpr) params.set('dpr', transforms.dpr.toString());
+    if (transforms.dpr) parts.push(`dpr:${transforms.dpr}`);
 
-    // Flipping
-    if (transforms.flip) params.set('flip', 'true');
-    if (transforms.flop) params.set('flop', 'true');
+    // Flipping - Boolean options without value
+    if (transforms.flip) parts.push('flip');
+    if (transforms.flop) parts.push('flop');
 
     // Visual effects
     if (transforms.blur) {
-      params.set(
-        'blur',
-        transforms.blur === true ? 'true' : transforms.blur.toString(),
-      );
+      // If blur is true, add key only; if number, add with value
+      parts.push(transforms.blur === true ? 'blur' : `blur:${transforms.blur}`);
     }
-    if (transforms.grayscale) params.set('grayscale', 'true');
+    if (transforms.grayscale) parts.push('grayscale');
 
-    // Region extraction
+    // Region extraction - use hyphen separator
     if (transforms.extract) {
       const { x, y, width, height } = transforms.extract;
-      params.set('extract', `${x},${y},${width},${height}`);
+      parts.push(`extract:${x}-${y}-${width}-${height}`);
     }
 
     // Format and quality - exclude 'auto' format from URL
     if (transforms.format && transforms.format !== 'auto') {
-      params.set('format', transforms.format);
+      parts.push(`format:${transforms.format}`);
     }
     if (transforms.quality) {
-      params.set('quality', transforms.quality.toString());
+      parts.push(`quality:${transforms.quality}`);
     }
 
-    return params.toString();
+    return parts.join(',');
   }
 }

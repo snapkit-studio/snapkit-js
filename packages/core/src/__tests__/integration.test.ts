@@ -253,7 +253,7 @@ describe('Integration Tests', () => {
           },
         );
         expect(transformedUrl).toBe(
-          'https://my-company-cdn.snapkit.studio/photos/vacation.jpg?w=800&h=600&format=webp&quality=85',
+          'https://my-company-cdn.snapkit.studio/photos/vacation.jpg?transform=w%3A800%2Ch%3A600%2Cformat%3Awebp%2Cquality%3A85',
         );
       });
 
@@ -287,9 +287,9 @@ describe('Integration Tests', () => {
           },
         );
         expect(srcset).toBe(
-          'https://d1234567890.cloudfront.net/images/products/item-1.png?w=400&format=webp 400w, ' +
-            'https://d1234567890.cloudfront.net/images/products/item-1.png?w=800&format=webp 800w, ' +
-            'https://d1234567890.cloudfront.net/images/products/item-1.png?w=1200&format=webp 1200w',
+          'https://d1234567890.cloudfront.net/images/products/item-1.png?transform=w%3A400%2Cformat%3Awebp 400w, ' +
+            'https://d1234567890.cloudfront.net/images/products/item-1.png?transform=w%3A800%2Cformat%3Awebp 800w, ' +
+            'https://d1234567890.cloudfront.net/images/products/item-1.png?transform=w%3A1200%2Cformat%3Awebp 1200w',
         );
       });
 
@@ -320,13 +320,13 @@ describe('Integration Tests', () => {
         );
 
         expect(formatUrls.avif).toBe(
-          'https://storage.googleapis.com/my-image-bucket/galleries/2024/photo.jpg?w=1200&h=800&format=avif&quality=90',
+          'https://storage.googleapis.com/my-image-bucket/galleries/2024/photo.jpg?transform=w%3A1200%2Ch%3A800%2Cformat%3Aavif%2Cquality%3A90',
         );
         expect(formatUrls.webp).toBe(
-          'https://storage.googleapis.com/my-image-bucket/galleries/2024/photo.jpg?w=1200&h=800&format=webp&quality=90',
+          'https://storage.googleapis.com/my-image-bucket/galleries/2024/photo.jpg?transform=w%3A1200%2Ch%3A800%2Cformat%3Awebp%2Cquality%3A90',
         );
         expect(formatUrls.original).toBe(
-          'https://storage.googleapis.com/my-image-bucket/galleries/2024/photo.jpg?w=1200&h=800&quality=90',
+          'https://storage.googleapis.com/my-image-bucket/galleries/2024/photo.jpg?transform=w%3A1200%2Ch%3A800%2Cquality%3A90',
         );
       });
 

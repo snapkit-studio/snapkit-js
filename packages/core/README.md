@@ -178,7 +178,7 @@ const imageData = engine.generateImageData({
 });
 
 console.log(imageData.url);
-// Output: https://your-organization-cdn.snapkit.studio/photos/landscape.jpg?w=800&h=600&quality=90
+// Output: https://your-organization-cdn.snapkit.studio/photos/landscape.jpg?transform=w%3A800%2Ch%3A600%2Cquality%3A90
 ```
 
 ### Responsive Images
@@ -228,7 +228,7 @@ const builder = UrlBuilderFactory.getInstance({
 const imageUrl = builder.buildImageUrl('/photos/sunset.jpg');
 // Output: https://your-organization-cdn.snapkit.studio/photos/sunset.jpg
 
-// URL with transformations
+// Path-based URL with transformations
 const transformedUrl = builder.buildTransformedUrl('/photos/sunset.jpg', {
   width: 800,
   height: 600,
@@ -237,14 +237,23 @@ const transformedUrl = builder.buildTransformedUrl('/photos/sunset.jpg', {
   fit: 'cover',
   blur: 10,
 });
-// Output: https://your-organization-cdn.snapkit.studio/photos/sunset.jpg?w=800&h=600&quality=85&format=webp&fit=cover&blur=10
+// Output: https://your-organization-cdn.snapkit.studio/photos/sunset.jpg?transform=w%3A800%2Ch%3A600%2Cquality%3A85%2Cformat%3Awebp%2Cfit%3Acover%2Cblur%3A10
+
+// URL-based transformation (for external CDN images)
+const externalUrl = 'https://d1234567890.cloudfront.net/image.jpg';
+const externalTransformed = builder.buildTransformedUrl(externalUrl, {
+  width: 800,
+  height: 600,
+  format: 'webp',
+});
+// Output: https://your-organization-cdn.snapkit.studio/image?url=https%3A%2F%2Fd1234567890.cloudfront.net%2Fimage.jpg&transform=w%3A800%2Ch%3A600%2Cformat%3Awebp
 
 // Generate srcSet for responsive images
 const srcSet = builder.buildSrcSet('/photos/sunset.jpg', [400, 800, 1200], {
   quality: 85,
   format: 'webp',
 });
-// Output: "https://...?w=400&quality=85&format=webp 400w, https://...?w=800&quality=85&format=webp 800w, ..."
+// Output: "https://...?transform=w%3A400%2Cquality%3A85%2Cformat%3Awebp 400w, https://...?transform=w%3A800%2Cquality%3A85%2Cformat%3Awebp 800w, ..."
 
 // Generate format URLs for picture element
 const formatUrls = builder.buildFormatUrls('/photos/sunset.jpg', {
@@ -254,9 +263,9 @@ const formatUrls = builder.buildFormatUrls('/photos/sunset.jpg', {
 });
 console.log(formatUrls);
 // Output: {
-//   avif: "https://...?w=800&h=600&format=avif&quality=85",
-//   webp: "https://...?w=800&h=600&format=webp&quality=85",
-//   original: "https://...?w=800&h=600&quality=85"
+//   avif: "https://...?transform=w%3A800%2Ch%3A600%2Cformat%3Aavif%2Cquality%3A85",
+//   webp: "https://...?transform=w%3A800%2Ch%3A600%2Cformat%3Awebp%2Cquality%3A85",
+//   original: "https://...?transform=w%3A800%2Ch%3A600%2Cquality%3A85"
 // }
 ```
 
@@ -375,6 +384,71 @@ interface EnvironmentStrategy {
   getEnvVar: (key: string) => string | undefined;
 }
 ```
+
+## Breaking Changes
+
+### Query Parameter Format (v1.9.2+)
+
+The URL query parameter format has been updated to match the image-proxy service structure:
+
+#### Old Format
+```
+?w=100&h=100&fit=cover&format=webp&blur=5&grayscale=true
+```
+
+#### New Format
+```
+?transform=w:100,h:100,fit:cover,format:webp,blur:5,grayscale
+```
+
+**Key Changes:**
+- All transform parameters are now wrapped in a single `transform` query parameter
+- Parameters use colon (`:`) separator for key-value pairs: `key:value`
+- Multiple parameters are joined with commas (`,`): `param1:value1,param2:value2`
+- Boolean options appear without values: `grayscale`, `flip`, `flop`
+- Extract region uses hyphen (`-`) separator: `extract:x-y-width-height`
+
+**Examples:**
+```typescript
+// Path-based transformations
+// Old: ?w=800&h=600&fit=cover
+// New: ?transform=w:800,h:600,fit:cover
+
+// URL-based transformations (NEW)
+// For external CDN URLs:
+// Input: https://d123.cloudfront.net/image.jpg + { width: 800 }
+// Output: https://your-org-cdn.snapkit.studio/image?url=https%3A%2F%2Fd123.cloudfront.net%2Fimage.jpg&transform=w:800
+
+// Visual effects
+// Old: ?blur=10&grayscale=true
+// New: ?transform=blur:10,grayscale
+
+// Boolean flip/flop
+// Old: ?flip=true&flop=true
+// New: ?transform=flip,flop
+
+// Extract region
+// Old: ?extract=10,20,100,200
+// New: ?transform=extract:10-20-100-200
+
+// Complete example
+// Old: ?w=800&h=600&quality=85&format=webp&fit=cover&blur=10
+// New: ?transform=w:800,h:600,quality:85,format:webp,fit:cover,blur:10
+```
+
+**URL-Based vs Path-Based:**
+- **Path-based**: For images in your own CDN
+  - Input: `/path/image.jpg`
+  - Output: `https://your-org-cdn.snapkit.studio/path/image.jpg?transform=...`
+- **URL-based**: For images from external CDNs
+  - Input: `https://other-cdn.com/image.jpg`
+  - Output: `https://your-org-cdn.snapkit.studio/image?url=https%3A%2F%2Fother-cdn.com%2Fimage.jpg&transform=...`
+
+**Impact:**
+- ✅ **No code changes required** - The SDK handles URL generation internally
+- ✅ **TypeScript interfaces unchanged** - `ImageTransforms` type remains the same
+- ⚠️ **URL parsing** - If you manually parse generated URLs, update your logic
+- ⚠️ **CDN caching** - URLs will generate new cache keys (gradual migration recommended)
 
 ## Migration Guide
 

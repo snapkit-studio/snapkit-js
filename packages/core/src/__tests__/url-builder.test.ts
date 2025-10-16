@@ -118,9 +118,8 @@ describe('SnapkitUrlBuilder Class', () => {
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('w=800');
-      expect(result).toContain('h=600');
-      expect(result).toContain('fit=cover');
+      expect(result).toContain('transform=w%3A800%2Ch%3A600%2Cfit%3Acover');
+      expect(result).toContain('?transform=');
     });
 
     it('should append transforms when URL already has query parameters', () => {
@@ -134,8 +133,7 @@ describe('SnapkitUrlBuilder Class', () => {
       );
 
       expect(result).toContain('test.jpg?v=123&');
-      expect(result).toContain('w=800');
-      expect(result).toContain('quality=90');
+      expect(result).toContain('transform=w%3A800%2Cquality%3A90');
     });
 
     it('should generate URL with DPR parameter', () => {
@@ -147,21 +145,22 @@ describe('SnapkitUrlBuilder Class', () => {
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('w=200');
-      expect(result).toContain('h=200');
-      expect(result).toContain('dpr=2');
-      expect(result).toContain('quality=85');
+      expect(result).toContain('transform=');
+      expect(result).toContain('w%3A200');
+      expect(result).toContain('h%3A200');
+      expect(result).toContain('dpr%3A2');
+      expect(result).toContain('quality%3A85');
     });
 
-    it('should generate URL with flip parameters', () => {
+    it('should generate URL with flip parameters (boolean without values)', () => {
       const transforms: ImageTransforms = {
         flip: true,
         flop: true,
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('flip=true');
-      expect(result).toContain('flop=true');
+      // flip and flop should appear without values
+      expect(result).toContain('transform=flip%2Cflop');
     });
 
     it('should generate URL with visual effect parameters', () => {
@@ -171,20 +170,23 @@ describe('SnapkitUrlBuilder Class', () => {
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('blur=10');
-      expect(result).toContain('grayscale=true');
+      expect(result).toContain('transform=');
+      expect(result).toContain('blur%3A10');
+      expect(result).toContain('grayscale');
     });
 
-    it('should set blur to "true" when blur is boolean true', () => {
+    it('should set blur without value when blur is boolean true', () => {
       const transforms: ImageTransforms = {
         blur: true,
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('blur=true');
+      // blur should appear without value when true
+      expect(result).toContain('transform=blur');
+      expect(result).not.toContain('blur%3Atrue');
     });
 
-    it('should generate URL with extract region parameters', () => {
+    it('should generate URL with extract region parameters using hyphen separator', () => {
       const transforms: ImageTransforms = {
         extract: {
           x: 25,
@@ -195,7 +197,8 @@ describe('SnapkitUrlBuilder Class', () => {
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('extract=25%2C10%2C50%2C75');
+      // extract should use hyphen separator: extract:25-10-50-75
+      expect(result).toContain('transform=extract%3A25-10-50-75');
     });
 
     it('should generate URL with format and quality parameters', () => {
@@ -205,8 +208,9 @@ describe('SnapkitUrlBuilder Class', () => {
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('format=webp');
-      expect(result).toContain('quality=85');
+      expect(result).toContain('transform=');
+      expect(result).toContain('format%3Awebp');
+      expect(result).toContain('quality%3A85');
     });
 
     it('should not include auto format in URL', () => {
@@ -216,6 +220,80 @@ describe('SnapkitUrlBuilder Class', () => {
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
       expect(result).not.toContain('format');
+      expect(result).toBe('https://test-org-cdn.snapkit.studio/test.jpg');
+    });
+
+    // URL-based transformation tests
+    it('should handle complete URLs with url parameter (no transforms)', () => {
+      const externalUrl = 'https://cdn.example.com/photos/image.jpg';
+      const result = urlBuilder.buildTransformedUrl(externalUrl, {});
+
+      expect(result).toContain('/image?');
+      expect(result).toContain('url=https%3A%2F%2Fcdn.example.com%2Fphotos%2Fimage.jpg');
+      expect(result).not.toContain('transform=');
+    });
+
+    it('should handle complete URLs with url and transform parameters', () => {
+      const externalUrl = 'https://cdn.example.com/photos/image.jpg';
+      const transforms: ImageTransforms = {
+        width: 800,
+        height: 600,
+        quality: 85,
+      };
+      const result = urlBuilder.buildTransformedUrl(externalUrl, transforms);
+
+      expect(result).toContain('/image?');
+      expect(result).toContain('url=https%3A%2F%2Fcdn.example.com%2Fphotos%2Fimage.jpg');
+      expect(result).toContain('transform=w%3A800%2Ch%3A600%2Cquality%3A85');
+    });
+
+    it('should handle CloudFront URLs with transformations', () => {
+      const cloudfrontUrl = 'https://d1234567890.cloudfront.net/assets/banner.png';
+      const transforms: ImageTransforms = {
+        width: 1200,
+        format: 'webp',
+        quality: 90,
+      };
+      const result = urlBuilder.buildTransformedUrl(cloudfrontUrl, transforms);
+
+      expect(result).toBe(
+        'https://test-org-cdn.snapkit.studio/image?url=https%3A%2F%2Fd1234567890.cloudfront.net%2Fassets%2Fbanner.png&transform=w%3A1200%2Cformat%3Awebp%2Cquality%3A90',
+      );
+    });
+
+    it('should handle http:// URLs (not just https://)', () => {
+      const httpUrl = 'http://cdn.example.com/image.jpg';
+      const transforms: ImageTransforms = {
+        width: 400,
+      };
+      const result = urlBuilder.buildTransformedUrl(httpUrl, transforms);
+
+      expect(result).toContain('/image?');
+      expect(result).toContain('url=http%3A%2F%2Fcdn.example.com%2Fimage.jpg');
+      expect(result).toContain('transform=w%3A400');
+    });
+
+    it('should apply all transform types to external URLs', () => {
+      const externalUrl = 'https://storage.googleapis.com/bucket/image.jpg';
+      const transforms: ImageTransforms = {
+        width: 500,
+        height: 300,
+        fit: 'cover',
+        blur: 5,
+        grayscale: true,
+        format: 'avif',
+        quality: 95,
+      };
+      const result = urlBuilder.buildTransformedUrl(externalUrl, transforms);
+
+      expect(result).toContain('url=https%3A%2F%2Fstorage.googleapis.com%2Fbucket%2Fimage.jpg');
+      expect(result).toContain('w%3A500');
+      expect(result).toContain('h%3A300');
+      expect(result).toContain('fit%3Acover');
+      expect(result).toContain('blur%3A5');
+      expect(result).toContain('grayscale');
+      expect(result).toContain('format%3Aavif');
+      expect(result).toContain('quality%3A95');
     });
   });
 
@@ -227,12 +305,17 @@ describe('SnapkitUrlBuilder Class', () => {
       };
       const result = urlBuilder.buildFormatUrls('test.jpg', transforms);
 
-      expect(result.avif).toContain('format=avif');
-      expect(result.avif).toContain('w=800');
-      expect(result.webp).toContain('format=webp');
-      expect(result.webp).toContain('w=800');
+      expect(result.avif).toContain('transform=');
+      expect(result.avif).toContain('format%3Aavif');
+      expect(result.avif).toContain('w%3A800');
+
+      expect(result.webp).toContain('transform=');
+      expect(result.webp).toContain('format%3Awebp');
+      expect(result.webp).toContain('w%3A800');
+
+      expect(result.original).toContain('transform=');
       expect(result.original).not.toContain('format');
-      expect(result.original).toContain('w=800');
+      expect(result.original).toContain('w%3A800');
     });
   });
 
@@ -245,14 +328,15 @@ describe('SnapkitUrlBuilder Class', () => {
       };
       const result = urlBuilder.buildSrcSet('test.jpg', widths, transforms);
 
-      expect(result).toContain('w=400');
+      expect(result).toContain('transform=');
+      expect(result).toContain('w%3A400');
       expect(result).toContain('400w');
-      expect(result).toContain('w=800');
+      expect(result).toContain('w%3A800');
       expect(result).toContain('800w');
-      expect(result).toContain('w=1200');
+      expect(result).toContain('w%3A1200');
       expect(result).toContain('1200w');
-      expect(result).toContain('quality=85');
-      expect(result).toContain('fit=cover');
+      expect(result).toContain('quality%3A85');
+      expect(result).toContain('fit%3Acover');
     });
 
     it('should separate srcset string with comma and space', () => {
@@ -274,14 +358,17 @@ describe('SnapkitUrlBuilder Class', () => {
         [1, 2, 3],
       );
 
-      expect(result).toContain('w=200&h=200&dpr=1');
+      expect(result).toContain('transform=');
+      expect(result).toContain('w%3A200');
+      expect(result).toContain('h%3A200');
+      expect(result).toContain('dpr%3A1');
       expect(result).toContain('1x');
-      expect(result).toContain('w=200&h=200&dpr=2');
+      expect(result).toContain('dpr%3A2');
       expect(result).toContain('2x');
-      expect(result).toContain('w=200&h=200&dpr=3');
+      expect(result).toContain('dpr%3A3');
       expect(result).toContain('3x');
-      expect(result).toContain('quality=85');
-      expect(result).toContain('format=webp');
+      expect(result).toContain('quality%3A85');
+      expect(result).toContain('format%3Awebp');
     });
 
     it('should use default DPR values when not specified', () => {
@@ -289,11 +376,14 @@ describe('SnapkitUrlBuilder Class', () => {
         quality: 75,
       });
 
-      expect(result).toContain('w=100&h=100&dpr=1');
+      expect(result).toContain('transform=');
+      expect(result).toContain('w%3A100');
+      expect(result).toContain('h%3A100');
+      expect(result).toContain('dpr%3A1');
       expect(result).toContain('1x');
-      expect(result).toContain('w=100&h=100&dpr=2');
+      expect(result).toContain('dpr%3A2');
       expect(result).toContain('2x');
-      expect(result).toContain('w=100&h=100&dpr=3');
+      expect(result).toContain('dpr%3A3');
       expect(result).toContain('3x');
     });
 
@@ -306,11 +396,13 @@ describe('SnapkitUrlBuilder Class', () => {
         [1, 2],
       );
 
-      expect(result).toContain('w=150&dpr=1');
+      expect(result).toContain('transform=');
+      expect(result).toContain('w%3A150');
+      expect(result).toContain('dpr%3A1');
       expect(result).toContain('1x');
-      expect(result).toContain('w=150&dpr=2');
+      expect(result).toContain('dpr%3A2');
       expect(result).toContain('2x');
-      expect(result).not.toContain('h=');
+      expect(result).not.toContain('h%3A');
     });
 
     it('should separate srcset entries with comma and space', () => {
@@ -335,10 +427,13 @@ describe('SnapkitUrlBuilder Class', () => {
         [1, 1.5, 2, 3],
       );
 
-      expect(result).toContain('w=120&h=80&dpr=1');
-      expect(result).toContain('w=120&h=80&dpr=1.5');
-      expect(result).toContain('w=120&h=80&dpr=2');
-      expect(result).toContain('w=120&h=80&dpr=3');
+      expect(result).toContain('transform=');
+      expect(result).toContain('w%3A120');
+      expect(result).toContain('h%3A80');
+      expect(result).toContain('dpr%3A1');
+      expect(result).toContain('dpr%3A1.5');
+      expect(result).toContain('dpr%3A2');
+      expect(result).toContain('dpr%3A3');
     });
 
     it('should work with fractional DPR values', () => {
@@ -351,8 +446,11 @@ describe('SnapkitUrlBuilder Class', () => {
       );
 
       // Dimensions should remain fixed regardless of DPR value
-      expect(result).toContain('w=133&h=77&dpr=1.5');
-      expect(result).toContain('w=133&h=77&dpr=2.5');
+      expect(result).toContain('transform=');
+      expect(result).toContain('w%3A133');
+      expect(result).toContain('h%3A77');
+      expect(result).toContain('dpr%3A1.5');
+      expect(result).toContain('dpr%3A2.5');
     });
 
     it('should work with custom transforms', () => {
@@ -369,12 +467,13 @@ describe('SnapkitUrlBuilder Class', () => {
         [1, 2],
       );
 
-      expect(result).toContain('quality=95');
-      expect(result).toContain('format=avif');
-      expect(result).toContain('fit=cover');
-      expect(result).toContain('blur=5');
-      expect(result).toContain('dpr=1');
-      expect(result).toContain('dpr=2');
+      expect(result).toContain('transform=');
+      expect(result).toContain('quality%3A95');
+      expect(result).toContain('format%3Aavif');
+      expect(result).toContain('fit%3Acover');
+      expect(result).toContain('blur%3A5');
+      expect(result).toContain('dpr%3A1');
+      expect(result).toContain('dpr%3A2');
     });
   });
 });

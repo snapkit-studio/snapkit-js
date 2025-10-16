@@ -213,7 +213,7 @@ describe('SnapkitUrlBuilder Security', () => {
       });
 
       expect(result).toBe(
-        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=100&h=100',
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?transform=w%3A100%2Ch%3A100',
       );
     });
 
@@ -223,13 +223,13 @@ describe('SnapkitUrlBuilder Security', () => {
       });
 
       expect(srcset).toContain(
-        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=100&quality=80',
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?transform=w%3A100%2Cquality%3A80',
       );
       expect(srcset).toContain(
-        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=200&quality=80',
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?transform=w%3A200%2Cquality%3A80',
       );
       expect(srcset).toContain(
-        'https://test-org-cdn.snapkit.studio/images/photo.jpg?w=300&quality=80',
+        'https://test-org-cdn.snapkit.studio/images/photo.jpg?transform=w%3A300%2Cquality%3A80',
       );
     });
   });
